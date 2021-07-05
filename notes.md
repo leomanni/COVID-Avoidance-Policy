@@ -3,6 +3,7 @@
 Il problema è episodico, a singolo agente. L'obiettivo è spostare *n* persone entro una mappa gridworld da una posizione iniziale casuale ad una finale prefissata.
 Il reward finale è complessivo delle mosse effettuate (i.e. del tempo impiegato), dell'eventuale scorretto posizionamento delle persone (ossia, ci sono delle mosse effettivamente illegali) e dei contagi avvenuti.
 Durante i movimenti, la probabilità d'infezione dipende dalla distanza, cioè se due persone o più persone si trovano entro un certo raggio da un infetto hanno ad ogni istante di tempo una certa probabilità di contrarre la malattia. Il numero di persone inizialmente infette in ogni episodio deve essere casuale. **Ad oggi 3/7/2021 questa feature verrà aggiunta solo successivamente, non appena la correttezza del modello e della sua implementazione saranno state verificate.**
+Per l'implementazione è consigliabile provare ad utilizzare le Reinforcement Learning Toolbox e Deep Learning Toolbox.
 
 ## DA FARE
 
@@ -13,17 +14,6 @@ Durante i movimenti, la probabilità d'infezione dipende dalla distanza, cioè s
 - [ ] Studiare implementazione agente custom in RL Toolbox (Create Custom Reinforcement Learning Agents) (Emanuele, Filippo).
 - [ ] Definire codifica stati.
 - [ ] Definire codifica azioni.
-
-## DA CHIEDERE
-
-- Usare RL/DL Toolbox?
-- Quale algoritmo da blocco 10?
-- Struttura NN?
-- Modellare lo stato come segue?
-- Modellare le azioni come segue?
-- Va bene la definizione del reward?
-- Va bene evitare i deadlock come segue?
-- Cosa si aspetta lui alla fine?
 
 ## Environment e sua dinamica
 
@@ -47,9 +37,7 @@ Posizione delle singole persone nella mappa, come ad esempio numero della casell
 
 ### Codifica azioni
 
-Per ora due possibilità:
-- *n* numeri da 0 a 5.
-- Un singolo numero di *n* cifre decimali, con cifre da 1 a 5 che specificano l'azione della singola pedina.
+_n_ numeri da 1 a 5, ciascuno indicante un'azione tra STOP-NSWE.
 
 Le azioni impossibili sono:
 
@@ -59,12 +47,18 @@ Le azioni impossibili sono:
 - Nello stato terminale "sconfitta": reward commisuratamente molto negativo.
 - Nello stato terminale "vittoria": -100 * (n_infetti - n_infetti_init)
 
+## Struttura agente
+
+E' consigliabile usare gli algoritmi SARSA/DQN basati su NN implementati in Matlab.
+
 ## Rete neurale per approssimazione funzione *q(s, a)*
 
 Semplice rete a sigmoide con pesi come nell'esempio del TD-Gammon.
 
+### Hidden layers ed hidden units
+
+Dovrebbe bastare un unico hidden layer. Testare numero hidden units, iniziare da _2*(n_stati + n_azioni)_.
+
 ### Input units
 
-Se *d* è il numero di caselle della mappa: *d* input units, ciascuna con il valore della casella *M_i_j* definito come sopra.
-Altre input units per l'azione, da codificare in uno dei modi definiti sopra.
-Potrebbe essere meglio dare solo le posizioni dei giocatori nella mappa *M*.
+_2n_ input units: le prime _n_ codificano la posizione, in column-major order nella matrice _M_ della mappa, di ciascuna persona, le seconde _n_ codificano con numeri da 1 a 5 le azioni da impartire a ciascuna persona.
