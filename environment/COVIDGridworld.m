@@ -28,7 +28,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
         % Single step reward.
         single_step_rew = -1
         
-        % Victory state reward.
+        % "Victory" state reward.
         victory_rew = 0
         
         % People positions (depends on n_people).
@@ -95,26 +95,50 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             notifyEnvUpdated(this);
         end
 
-        % Reset environment to initial state and output initial observation
+        % Resets environment and observation to initial state.
         function InitialObservation = reset(this)
+            % Reset counters and other properties.
+            this.stall_acts_cnt = 0;
             
-            % (optional) use notifyEnvUpdated to signal that the 
-            % environment has been updated (e.g. to update visualization)
+            % Clear the map from people (not the first time!).
+            if this.State(1) ~= 0
+                for i = 1:this.n_people
+                    person_subs = ind2sub([size(this.map_mat, 1) size(this.map_mat, 2)], this.State(i));
+                    this.map_mat(person_subs(1), person_subs(2)) = 0;
+                end
+            end
+            
+            % Generate and set a new initial state.
+            InitialObservation = zeros(this.n_people, 1);
+            for i = 1:this.n_people
+                while true
+                    new_pos = randi(size(this.map_mat, 1) * size(this.map_mat, 2));
+                    % Check if this is not a target.
+                    if ismember(new_pos, this.targets) == true
+                        % A new random extraction is necessary.
+                        continue
+                    end
+                    % Check if the cell is free.
+                    new_subs = ind2sub([size(this.map_mat, 1) size(this.map_mat, 2)], new_pos);
+                    if this.map_mat(new_subs(1), new_subs(2)) ~= 0
+                        % A new random extraction is necessary.
+                        continue
+                    else
+                        this.map_mat(new_subs(1), new_subs(2)) = i;
+                        this.State(i) = new_pos;
+                        InitialObservation(i) = new_pos;
+                        break
+                    end
+                end
+            end
+            
+            % Signal that the environment has been updated.
             notifyEnvUpdated(this);
         end
     end
 
     %% Auxiliary Methods
-    methods               
-        % Helper methods to create the environment
-        % Discrete force 1 or 2
-        function force = getForce(this,action)
-            if ~ismember(action,this.ActionInfo.Elements)
-                error('Action must be %g for going left and %g for going right.',-this.MaxForce,this.MaxForce);
-            end
-            force = action;           
-        end
-        
+    methods        
         % Reward function
         function Reward = getReward(this)
             if ~this.IsDone
@@ -123,7 +147,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
                 Reward = this.PenaltyForFalling;
             end          
         end
-        
+
         % Visualization method.
         function plot(this)
             % Initiate the visualization.
@@ -132,7 +156,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             envUpdatedCallback(this)
         end
     end
-    
+
     methods (Access = protected)
         % (optional) update visualization everytime the environment is updated 
         % (notifyEnvUpdated is called)
