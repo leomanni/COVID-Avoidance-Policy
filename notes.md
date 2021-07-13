@@ -7,11 +7,11 @@ Durante i movimenti, la probabilità d'infezione dipende dalla distanza, cioè s
 
 ## DA FARE
 
-- [x] Definire azioni "impossibili" da mappare in uno stato terminale unico "sconfitta". (Leonardo)
+- [ ] Definire azioni "impossibili" da mappare in uno stato terminale unico "sconfitta". (Leonardo)
 
 - [x] Definire la mappa, con ostacoli di confine ed ostacoli interni. Mappe per 4 (circa 6x6), e poi una più grande. (Edoardo)
 - [ ] Studiare implementazione environment custom in RL Toolbox (Create Custom MATLAB Environments from Template) (Roberto).
-- [ ] Studiare implementazione agente DQN da RL Toolbox usando le *observation* ed *action specifications* proprie dell'environment custom e definite di seguito. (Emanuele, Filippo).
+- [x] Studiare implementazione agente DQN da RL Toolbox usando le *observation* ed *action specifications* proprie dell'environment custom e definite di seguito. (Emanuele, Filippo).
 - [x] Definire codifica stati.
 - [x] Definire codifica azioni.
 
@@ -27,12 +27,9 @@ Detto ciò, cosa succede se:
 ### Codifica mappa
 
 Matrice quadrata *M* con elementi scelti secondo:
-
-- Libero: 1
-- Ostacolo: 2
-- Occupata: *2+i*, con *i* ID del giocatore *i*-esimo per 1 <= *i* <= *n*.
-
-L'intera mappa va incorniciata in uno strato di ostacoli di almeno una casella di spessore.
+- Ostacolo: -1
+- Libero: 0
+- Occupata: *i*, ID del giocatore *i*-esimo per 1 <= *i* <= *n*.
 
 E' opportuno che l'environment abbia la matrice *M* tra le *properties*, per uso da parte dei suoi metodi; essa andrà probabilmente codificata "a mano" data la forma della mappa in ciascuno dei due casi.
 
@@ -40,12 +37,12 @@ E' opportuno che l'environment abbia la matrice *M* tra le *properties*, per uso
 
 Posizione delle singole persone nella mappa, come ad esempio numero della casella occupata in column-major order (purtroppo Matlab è così...). In Matlab, possono essere codificati in due modi:
 
-- Usando *rlFiniteSetSpec*, probabilmente come specificato per le azioni di seguito, basandosi su una raccolta delle componenti "libere" di *M* (che può essere eseguita anche una volta per tutte all'inizio). Ciò però potrebbe andare contro il modo in cui abbiamo deciso di rappresentare il problema, in quanto non usando metodi tabellari abbiamo rinunciato a descrivere singolarmente tutti gli stati.
+- Usando *rlFiniteSetSpec*, probabilmente come specificato per le azioni di seguito, basandosi su una raccolta delle componenti "libere" di *M* (che può essere eseguita anche una volta per tutte all'inizio). Ciò però potrebbe andare contro il modo in cui abbiamo deciso di rappresentare il problema, in quanto non usando metodi tabellari abbiamo 
 - Usando *rlNumericSpec*. E' effettivamente creata per spazi di stato continui, che potrebbe essere un'approssimazione della nostra situazione in cui abbiamo "troppi" stati, ma dovendo essere noi a gestire le transizioni saremmo sempre noi ad assegnare i valori opportuni alle variabili di stato, definite entro degli opportuni intervalli, e l'agente comunque non dovrebbe mantenere memoria di quali sono tutti gli stati ma soltanto imparare ad agire di conseguenza in ciascuno di essi grazie alla NN. **Ad oggi 10/7/2021 si tenterà dapprima di implementare l'environment, e di conseguenza il DQN agent, usando questa rappresentazione.**
 
 ### Codifica azioni
 
-_n_ numeri da 1 a 5, ciascuno indicante un'azione in *NSWE+STOP* in questo ordine. In Matlab, possono essere codificate usando *rlFiniteSetSpec* passandogli un cell array di vettori a *n* componenti, opportunamente formati (si veda esempio nelle docs).
+_n_ numeri da 1 a 5, ciascuno indicante un'azione tra STOP-NSWE. In Matlab, possono essere codificate usando *rlFiniteSetSpec* passandogli un cell array di vettori a *n* componenti, opportunamente formati (si veda esempio nelle docs).
 
 Le *azioni illegali*, i.e. i movimenti che portano alla immediata terminazione di un episodio nello stato "sconfitta", sono:
 
