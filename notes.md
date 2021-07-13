@@ -42,7 +42,7 @@ Posizione delle singole persone nella mappa, come ad esempio numero della casell
 
 ### Codifica azioni
 
-_n_ numeri da 1 a 5, ciascuno indicante un'azione tra STOP-NSWE. In Matlab, possono essere codificate usando *rlFiniteSetSpec* passandogli un cell array di vettori a *n* componenti, opportunamente formati (si veda esempio nelle docs).
+_n_ numeri da 1 a 5, ciascuno indicante un'azione in *NSWE+STOP* in questo ordine. In Matlab, possono essere codificate usando *rlFiniteSetSpec* passandogli un cell array di vettori a *n* componenti, opportunamente formati (si veda esempio nelle docs).
 
 Le *azioni illegali*, i.e. i movimenti che portano alla immediata terminazione di un episodio nello stato "sconfitta", sono:
 
