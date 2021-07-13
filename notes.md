@@ -7,7 +7,7 @@ Durante i movimenti, la probabilità d'infezione dipende dalla distanza, cioè s
 
 ## DA FARE
 
-- [ ] Definire azioni "impossibili" da mappare in uno stato terminale unico "sconfitta". (Leonardo)
+- [x] Definire azioni "impossibili" da mappare in uno stato terminale unico "sconfitta". (Leonardo)
 
 - [x] Definire la mappa, con ostacoli di confine ed ostacoli interni. Mappe per 4 (circa 6x6), e poi una più grande. (Edoardo)
 - [ ] Studiare implementazione environment custom in RL Toolbox (Create Custom MATLAB Environments from Template) (Roberto).
@@ -31,6 +31,8 @@ Matrice quadrata *M* con elementi scelti secondo:
 - Libero: 0
 - Occupata: *i*, ID del giocatore *i*-esimo per 1 <= *i* <= *n*.
 
+L'intera mappa va incorniciata in uno strato di ostacoli di almeno una casella di spessore.
+
 E' opportuno che l'environment abbia la matrice *M* tra le *properties*, per uso da parte dei suoi metodi; essa andrà probabilmente codificata "a mano" data la forma della mappa in ciascuno dei due casi.
 
 ### Codifica stati
@@ -42,7 +44,7 @@ Posizione delle singole persone nella mappa, come ad esempio numero della casell
 
 ### Codifica azioni
 
-_n_ numeri da 1 a 5, ciascuno indicante un'azione tra STOP-NSWE. In Matlab, possono essere codificate usando *rlFiniteSetSpec* passandogli un cell array di vettori a *n* componenti, opportunamente formati (si veda esempio nelle docs).
+_n_ numeri da 1 a 5, ciascuno indicante un'azione in *NSWE+STOP* in questo ordine. In Matlab, possono essere codificate usando *rlFiniteSetSpec* passandogli un cell array di vettori a *n* componenti, opportunamente formati (si veda esempio nelle docs).
 
 Le *azioni illegali*, i.e. i movimenti che portano alla immediata terminazione di un episodio nello stato "sconfitta", sono:
 
