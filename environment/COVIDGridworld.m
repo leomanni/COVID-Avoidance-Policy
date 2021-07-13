@@ -27,9 +27,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
         
         % Victory state reward.
         victory_rew = 0
-    end
-
-    properties
+        
         % People positions, initialized to a vector (depends on n_people).
         State = []
     end
@@ -42,22 +40,50 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
     %% Necessary Methods
     methods
         % Creates an instance of the environment.
-        function this = COVIDGridworld()
-            % Initialize Observation settings
-            ObservationInfo = rlNumericSpec([4 1]);
-            ObservationInfo.Name = 'CartPole States';
-            ObservationInfo.Description = 'x, dx, theta, dtheta';
+        function this = COVIDGridworld(people, map)
+            % Generate a cell array that holds all possible actions.
+            % Works as a car odometer.
+            actions_cell = cell([1, 5 ^ people]);
+            prev_cell = ones(1, people);
+            actions_cell{1} = prev_cell;
+            for i = 2:(5 ^ people)
+                prev_cell = actions_cell{i - 1};
+                for j = 1:people
+                    prev_cell(j) = prev_cell(j) + 1;
+                    if prev_cell(j) == 6
+                        prev_cell(j) = 1;
+                        continue
+                    else
+                        break
+                    end
+                end
+                actions_cell{i} = prev_cell;
+            end
             
-            % Initialize Action settings   
-            ActionInfo = rlFiniteSetSpec([-1 1]);
-            ActionInfo.Name = 'CartPole Action';
+            % Initialize Observation settings.
+            ObservationInfo = rlNumericSpec([people 1]);
+            ObservationInfo.Name = 'COVIDGridworld Observation';
+            ObservationInfo.Description = 'People positions';
+            ObservationInfo.LowerLimit = 1;
+            ObservationInfo.UpperLimit = size(map, 1) * size(map, 2);
             
-            % The following line implements built-in functions of RL env
+            % Initialize Action settings.
+            ActionInfo = rlFiniteSetSpec(actions_cell);
+            ActionInfo.Name = 'COVIDGridworld Action';
+            ActionInfo.Description = 'Set of people NSWE+STOP movements';
+            
+            % The following line implements built-in functions of RL env.
+            % NOTE: This MUST be called before setting anything else!
             this = this@rl.env.MATLABEnvironment(ObservationInfo, ActionInfo);
+            
+            % Initialize other properties.
+            this.n_people = people;
+            this.map_mat = map;
+            this.State = zeros(people, 1);
+            this.defeat_rew = -1000 * size(map, 1) * size(map, 2);
         end
 
-        % Apply system dynamics and simulates the environment with the 
-        % given action for one step.
+        % Simulates the environment with the given action for one step.
         function [Observation,Reward,IsDone,LoggedSignals] = step(this, Action)
             
             % (optional) use notifyEnvUpdated to signal that the 
@@ -74,7 +100,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
         end
     end
 
-    %% Optional Methods
+    %% Auxiliary Methods
     methods               
         % Helper methods to create the environment
         % Discrete force 1 or 2
