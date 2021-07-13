@@ -27,9 +27,10 @@ Detto ciò, cosa succede se:
 ### Codifica mappa
 
 Matrice quadrata *M* con elementi scelti secondo:
-- Ostacolo: -1
-- Libero: 0
-- Occupata: *i*, ID del giocatore *i*-esimo per 1 <= *i* <= *n*.
+
+- Libero: 1
+- Ostacolo: 2
+- Occupata: *2+i*, con *i* ID del giocatore *i*-esimo per 1 <= *i* <= *n*.
 
 L'intera mappa va incorniciata in uno strato di ostacoli di almeno una casella di spessore.
 
@@ -39,7 +40,7 @@ E' opportuno che l'environment abbia la matrice *M* tra le *properties*, per uso
 
 Posizione delle singole persone nella mappa, come ad esempio numero della casella occupata in column-major order (purtroppo Matlab è così...). In Matlab, possono essere codificati in due modi:
 
-- Usando *rlFiniteSetSpec*, probabilmente come specificato per le azioni di seguito, basandosi su una raccolta delle componenti "libere" di *M* (che può essere eseguita anche una volta per tutte all'inizio). Ciò però potrebbe andare contro il modo in cui abbiamo deciso di rappresentare il problema, in quanto non usando metodi tabellari abbiamo 
+- Usando *rlFiniteSetSpec*, probabilmente come specificato per le azioni di seguito, basandosi su una raccolta delle componenti "libere" di *M* (che può essere eseguita anche una volta per tutte all'inizio). Ciò però potrebbe andare contro il modo in cui abbiamo deciso di rappresentare il problema, in quanto non usando metodi tabellari abbiamo rinunciato a descrivere singolarmente tutti gli stati.
 - Usando *rlNumericSpec*. E' effettivamente creata per spazi di stato continui, che potrebbe essere un'approssimazione della nostra situazione in cui abbiamo "troppi" stati, ma dovendo essere noi a gestire le transizioni saremmo sempre noi ad assegnare i valori opportuni alle variabili di stato, definite entro degli opportuni intervalli, e l'agente comunque non dovrebbe mantenere memoria di quali sono tutti gli stati ma soltanto imparare ad agire di conseguenza in ciascuno di essi grazie alla NN. **Ad oggi 10/7/2021 si tenterà dapprima di implementare l'environment, e di conseguenza il DQN agent, usando questa rappresentazione.**
 
 ### Codifica azioni

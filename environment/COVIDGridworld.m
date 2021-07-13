@@ -22,6 +22,9 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
         % Stall-leading actions counter.
         stall_acts_cnt = 0
         
+        % Stall leading actions counter max value.
+        max_stall_acts = 50;
+        
         % "Defeat" state reward (depends on map size).
         defeat_rew = 0
         
@@ -104,7 +107,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             if this.State(1) ~= 0
                 for i = 1:this.n_people
                     person_subs = ind2sub([size(this.map_mat, 1) size(this.map_mat, 2)], this.State(i));
-                    this.map_mat(person_subs(1), person_subs(2)) = 0;
+                    this.map_mat(person_subs(1), person_subs(2)) = 1;
                 end
             end
             
@@ -120,11 +123,11 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
                     end
                     % Check if the cell is free.
                     new_subs = ind2sub([size(this.map_mat, 1) size(this.map_mat, 2)], new_pos);
-                    if this.map_mat(new_subs(1), new_subs(2)) ~= 0
+                    if this.map_mat(new_subs(1), new_subs(2)) ~= 1
                         % A new random extraction is necessary.
                         continue
                     else
-                        this.map_mat(new_subs(1), new_subs(2)) = i;
+                        this.map_mat(new_subs(1), new_subs(2)) = 2 + i;
                         this.State(i) = new_pos;
                         InitialObservation(i) = new_pos;
                         break
