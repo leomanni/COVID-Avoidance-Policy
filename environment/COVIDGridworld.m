@@ -49,7 +49,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
         function this = COVIDGridworld(people, map, target_indices)
             % Generate a cell array that holds all possible actions.
             % Works as a car odometer.
-            actions_cell = cell([1, 5 ^ people]);
+            actions_cell = cell([5 ^ people, 1]);
             prev_cell = ones(people, 1);
             actions_cell{1} = prev_cell;
             for i = 2:(5 ^ people)
@@ -76,7 +76,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             % Initialize Action settings.
             ActionInfo = rlFiniteSetSpec(actions_cell);
             ActionInfo.Name = 'COVIDGridworld Action';
-            ActionInfo.Description = 'Set of people NSWE+STOP movements';
+            ActionInfo.Description = 'Set of people STOP+NSWE movements';
             
             % The following line implements built-in functions of RL env.
             % NOTE: This MUST be called before setting anything else!
