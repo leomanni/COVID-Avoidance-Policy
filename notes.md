@@ -31,6 +31,8 @@ Matrice quadrata *M* con elementi scelti secondo:
 - Libero: 0
 - Occupata: *i*, ID del giocatore *i*-esimo per 1 <= *i* <= *n*.
 
+L'intera mappa va incorniciata in uno strato di ostacoli di almeno una casella di spessore.
+
 E' opportuno che l'environment abbia la matrice *M* tra le *properties*, per uso da parte dei suoi metodi; essa andrà probabilmente codificata "a mano" data la forma della mappa in ciascuno dei due casi.
 
 ### Codifica stati
