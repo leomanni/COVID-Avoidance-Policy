@@ -7,11 +7,11 @@ Durante i movimenti, la probabilità d'infezione dipende dalla distanza, cioè s
 
 ## DA FARE
 
-- [ ] Definire azioni "impossibili" da mappare in uno stato terminale unico "sconfitta". (Leonardo)
+- [x] Definire azioni "illegali" da mappare in uno stato terminale unico "sconfitta". (Leonardo)
 
 - [x] Definire la mappa, con ostacoli di confine ed ostacoli interni. Mappe per 4 (circa 6x6), e poi una più grande. (Edoardo)
 - [ ] Studiare implementazione environment custom in RL Toolbox (Create Custom MATLAB Environments from Template) (Roberto).
-- [x] Studiare implementazione agente DQN da RL Toolbox usando le *observation* ed *action specifications* proprie dell'environment custom e definite di seguito. (Emanuele, Filippo).
+- [x] Studiare implementazione agente DQN da RL Toolbox usando le *osservazioni* ed *action specifications* proprie dell'environment custom e definite di seguito. (Emanuele, Filippo).
 - [x] Definire codifica stati.
 - [x] Definire codifica azioni.
 
@@ -27,9 +27,10 @@ Detto ciò, cosa succede se:
 ### Codifica mappa
 
 Matrice quadrata *M* con elementi scelti secondo:
-- Ostacolo: -1
-- Libero: 0
-- Occupata: *i*, ID del giocatore *i*-esimo per 1 <= *i* <= *n*.
+
+- Libero: 1
+- Ostacolo: 2
+- Occupata: *2+i*, con *i* ID del giocatore *i*-esimo per 1 <= *i* <= *n*.
 
 E' opportuno che l'environment abbia la matrice *M* tra le *properties*, per uso da parte dei suoi metodi; essa andrà probabilmente codificata "a mano" data la forma della mappa in ciascuno dei due casi.
 
