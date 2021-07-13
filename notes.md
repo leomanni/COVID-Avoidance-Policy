@@ -7,7 +7,7 @@ Durante i movimenti, la probabilità d'infezione dipende dalla distanza, cioè s
 
 ## DA FARE
 
-- [ ] Definire azioni "impossibili" da mappare in uno stato terminale unico "sconfitta". (Leonardo)
+- [x] Definire azioni "impossibili" da mappare in uno stato terminale unico "sconfitta". (Leonardo)
 
 - [x] Definire la mappa, con ostacoli di confine ed ostacoli interni. Mappe per 4 (circa 6x6), e poi una più grande. (Edoardo)
 - [ ] Studiare implementazione environment custom in RL Toolbox (Create Custom MATLAB Environments from Template) (Roberto).
