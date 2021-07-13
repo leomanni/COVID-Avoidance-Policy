@@ -16,6 +16,9 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
         % Matrix encoding the map state in real time.
         map_mat = []
         
+        % Target positions indices (depends on n_people).
+        targets = []
+        
         % Stall-leading actions counter.
         stall_acts_cnt = 0
         
@@ -28,7 +31,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
         % Victory state reward.
         victory_rew = 0
         
-        % People positions, initialized to a vector (depends on n_people).
+        % People positions (depends on n_people).
         State = []
     end
 
@@ -40,7 +43,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
     %% Necessary Methods
     methods
         % Creates an instance of the environment.
-        function this = COVIDGridworld(people, map)
+        function this = COVIDGridworld(people, map, target_indices)
             % Generate a cell array that holds all possible actions.
             % Works as a car odometer.
             actions_cell = cell([1, 5 ^ people]);
@@ -79,6 +82,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             % Initialize other properties.
             this.n_people = people;
             this.map_mat = map;
+            this.targets = target_indices;
             this.State = zeros(people, 1);
             this.defeat_rew = -1000 * size(map, 1) * size(map, 2);
         end
