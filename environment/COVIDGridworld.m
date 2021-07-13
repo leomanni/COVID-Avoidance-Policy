@@ -50,7 +50,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             % Generate a cell array that holds all possible actions.
             % Works as a car odometer.
             actions_cell = cell([1, 5 ^ people]);
-            prev_cell = ones(1, people);
+            prev_cell = ones(people, 1);
             actions_cell{1} = prev_cell;
             for i = 2:(5 ^ people)
                 prev_cell = actions_cell{i - 1};
