@@ -4,14 +4,14 @@
 % Emanuele Alfano
 % July 13, 2021
 
-function grid = four_people_map()
+function [grid, targets] = four_people_map()
 % 4PEOPLE_MAP Generates 4-people COVID gridworld map as matrix.
     % Map cells encoding values.
     free_val = 1;
     obstacle_val = 2;
 
     grid = ones(15, 16);
-    grid .* free_val;
+    grid = grid .* free_val;
 
     n = size(grid);
 
@@ -53,4 +53,11 @@ function grid = four_people_map()
             grid(i, j) = obstacle_val;
         end
     end
+    
+    % Generate targets.
+    targets = zeros(4, 1);
+    targets(1) = sub2ind([15 16], 4, 5);
+    targets(2) = sub2ind([15 16], 9, 6);
+    targets(3) = sub2ind([15 16], 13, 4);
+    targets(4) = sub2ind([15 16], 10, 15);
 end
