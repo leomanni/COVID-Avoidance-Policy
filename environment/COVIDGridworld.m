@@ -70,7 +70,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             ObservationInfo = rlNumericSpec([people 1]);
             ObservationInfo.Name = 'COVIDGridworld Observation';
             ObservationInfo.Description = 'People positions';
-            ObservationInfo.LowerLimit = 1;
+            ObservationInfo.LowerLimit = 0;
             ObservationInfo.UpperLimit = size(map, 1) * size(map, 2);
             
             % Initialize Action settings.
@@ -91,10 +91,106 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
         end
 
         % Simulates the environment with the given action for one step.
-        function [Observation,Reward,IsDone,LoggedSignals] = step(this, Action)
+        function [Observation, Reward, IsDone, LoggedSignals] = step(this, Action)
+            LoggedSignals = [];
+            all_still = true;
+            defeated = false;
+            this.IsDone = false;
             
-            % (optional) use notifyEnvUpdated to signal that the 
-            % environment has been updated (e.g. to update visualization)
+            % Process each person's movements.
+            for i = 1:this.n_people
+                curr_moved = false;
+                curr_pos = this.State(i);
+                curr_subs = ind2sub([size(this.map_mat, 1) size(this.map_mat, 2)], curr_pos);
+                
+                % Parse the action.
+                switch Action(i)
+                    case 1
+                        % STOP
+                        new_subs = curr_subs;
+                        new_pos = curr_pos;
+                    case 2
+                        % NORTH
+                        new_subs = [curr_subs(1) - 1, curr_subs(2)];
+                        new_pos = sub2ind([size(this.map_mat, 1) size(this.map_mat, 2)], new_subs(1), new_subs(2));
+                        curr_moved = true;
+                    case 3
+                        % SOUTH
+                        new_subs = [curr_subs(1) + 1, curr_subs(2)];
+                        new_pos = sub2ind([size(this.map_mat, 1) size(this.map_mat, 2)], new_subs(1), new_subs(2));
+                        curr_moved = true;
+                    case 4
+                        % WEST
+                        new_subs = [curr_subs(1), curr_subs(2) - 1];
+                        new_pos = sub2ind([size(this.map_mat, 1) size(this.map_mat, 2)], new_subs(1), new_subs(2));
+                        curr_moved = true;
+                    case 5
+                        % EAST
+                        new_subs = [curr_subs(1), curr_subs(2) + 1];
+                        new_pos = sub2ind([size(this.map_mat, 1) size(this.map_mat, 2)], new_subs(1), new_subs(2));
+                        curr_moved = true;
+                    otherwise
+                        error('Invalid action %d for person %d.', Action(i), i);
+                end
+                
+                % Check if the new position is feasible.
+                if curr_moved == true
+                    switch this.map_mat(new_subs(1), new_subs(2))
+                        case 1
+                            % Free cell: update map and internal state.
+                            all_still = false;
+                            this.map_mat(curr_subs(1), curr_subs(2)) = 1;
+                            this.map_mat(new_subs(1), new_subs(2)) = 2 + i;
+                            this.State(i) = new_pos;
+                        case 2
+                            % Obstacle detected: nothing to do.
+                        otherwise
+                            % Occupied cell: illegal move.
+                            defeated = true;
+                            break
+                    end
+                end
+            end
+            
+            % Has no one moved?
+            if all_still == true
+                this.stall_acts_cnt = this.stall_acts_cnt + 1;
+                if this.stall_acts_cnt == this.max_stall_acts
+                    % Stalled for too long.
+                    defeated = true;
+                end
+            end
+            
+            % "Defeat" state: set return values and get out.
+            if defeated == true
+                this.IsDone = true;
+                IsDone = true;
+                Observation = zeros(this.n_people, 1);
+                Reward = this.defeat_rew;
+                notifyEnvUpdated(this);
+                return
+            end
+            
+            % Check for "Victory".
+            won = true;
+            for i = 1:this.n_people
+                if ~ismember(this.State(i), this.targets)
+                    won = false;
+                end
+            end
+            if won == true
+                this.IsDone = true;
+                IsDone = true;
+                Observation = this.State;
+                Reward = this.victory_rew;
+                notifyEnvUpdated(this);
+                return
+            end
+            
+            % Just a normal execution step.
+            IsDone = false;
+            Observation = this.State;
+            Reward = this.single_step_rew;
             notifyEnvUpdated(this);
         end
 
@@ -102,6 +198,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
         function InitialObservation = reset(this)
             % Reset counters and other properties.
             this.stall_acts_cnt = 0;
+            this.IsDone = false;
             
             % Clear the map from people (not the first time!).
             if this.State(1) ~= 0
@@ -141,16 +238,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
     end
 
     %% Auxiliary Methods
-    methods        
-        % Reward function
-        function Reward = getReward(this)
-            if ~this.IsDone
-                Reward = this.RewardForNotFalling;
-            else
-                Reward = this.PenaltyForFalling;
-            end          
-        end
-
+    methods
         % Visualization method.
         function plot(this)
             % Initiate the visualization.
