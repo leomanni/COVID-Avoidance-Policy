@@ -101,32 +101,32 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             for i = 1:this.n_people
                 curr_moved = false;
                 curr_pos = this.State(i);
-                curr_subs = ind2sub([size(this.map_mat, 1) size(this.map_mat, 2)], curr_pos);
+                [curr_row, curr_col] = ind2sub([size(this.map_mat, 1) size(this.map_mat, 2)], curr_pos);
                 
                 % Parse the action.
                 switch Action(i)
                     case 1
                         % STOP
-                        new_subs = curr_subs;
+                        new_subs = [curr_row, curr_col];
                         new_pos = curr_pos;
                     case 2
                         % NORTH
-                        new_subs = [curr_subs(1) - 1, curr_subs(2)];
+                        new_subs = [curr_row - 1, curr_col];
                         new_pos = sub2ind([size(this.map_mat, 1) size(this.map_mat, 2)], new_subs(1), new_subs(2));
                         curr_moved = true;
                     case 3
                         % SOUTH
-                        new_subs = [curr_subs(1) + 1, curr_subs(2)];
+                        new_subs = [curr_row + 1, curr_col];
                         new_pos = sub2ind([size(this.map_mat, 1) size(this.map_mat, 2)], new_subs(1), new_subs(2));
                         curr_moved = true;
                     case 4
                         % WEST
-                        new_subs = [curr_subs(1), curr_subs(2) - 1];
+                        new_subs = [curr_row, curr_col - 1];
                         new_pos = sub2ind([size(this.map_mat, 1) size(this.map_mat, 2)], new_subs(1), new_subs(2));
                         curr_moved = true;
                     case 5
                         % EAST
-                        new_subs = [curr_subs(1), curr_subs(2) + 1];
+                        new_subs = [curr_row, curr_col + 1];
                         new_pos = sub2ind([size(this.map_mat, 1) size(this.map_mat, 2)], new_subs(1), new_subs(2));
                         curr_moved = true;
                     otherwise
@@ -139,7 +139,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
                         case 1
                             % Free cell: update map and internal state.
                             all_still = false;
-                            this.map_mat(curr_subs(1), curr_subs(2)) = 1;
+                            this.map_mat(curr_row, curr_col) = 1;
                             this.map_mat(new_subs(1), new_subs(2)) = 2 + i;
                             this.State(i) = new_pos;
                         case 2
@@ -174,7 +174,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             % Check for "Victory".
             won = true;
             for i = 1:this.n_people
-                if ~ismember(this.State(i), this.targets)
+                if this.State(i) ~= this.targets(i)
                     won = false;
                 end
             end
@@ -203,8 +203,8 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             % Clear the map from people (not the first time!).
             if this.State(1) ~= 0
                 for i = 1:this.n_people
-                    person_subs = ind2sub([size(this.map_mat, 1) size(this.map_mat, 2)], this.State(i));
-                    this.map_mat(person_subs(1), person_subs(2)) = 1;
+                    [person_row, person_col] = ind2sub([size(this.map_mat, 1) size(this.map_mat, 2)], this.State(i));
+                    this.map_mat(person_row, person_col) = 1;
                 end
             end
             
@@ -219,12 +219,12 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
                         continue
                     end
                     % Check if the cell is free.
-                    new_subs = ind2sub([size(this.map_mat, 1) size(this.map_mat, 2)], new_pos);
-                    if this.map_mat(new_subs(1), new_subs(2)) ~= 1
+                    [new_row, new_col] = ind2sub([size(this.map_mat, 1) size(this.map_mat, 2)], new_pos);
+                    if this.map_mat(new_row, new_col) ~= 1
                         % A new random extraction is necessary.
                         continue
                     else
-                        this.map_mat(new_subs(1), new_subs(2)) = 2 + i;
+                        this.map_mat(new_row, new_col) = 2 + i;
                         this.State(i) = new_pos;
                         InitialObservation(i) = new_pos;
                         break
