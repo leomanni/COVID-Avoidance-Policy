@@ -36,9 +36,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
         
         % People positions (depends on n_people).
         State
-    end
 
-    properties (Access = protected)
         % Internal flag to indicate episode termination.
         IsDone = false
 
@@ -47,10 +45,13 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
 
         % Plot figure axes.
         Ax
-        
+
         % Plot grid lines.
         GridLines
-        
+
+        % Handles for people plot patches.
+        PeoplePatches
+
         % Array of strings that specify colors to plot different people.
         Colors
     end
@@ -318,6 +319,9 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
                 hold(this.Ax, 'on');
             end
             
+            % Initialize people patches handles array.
+            this.PeoplePatches = [];
+            
             % Draw grid.
             delete(this.GridLines);
             m = size(this.map_mat, 1);
@@ -326,7 +330,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             yLineData = [];
             y0 = 0.5;
             x0 = 0.5;
-            for r = 0:m 
+            for r = 0:m
                 yLineData = [yLineData; y0 + r; y0 + r; nan];
                 xLineData = [xLineData; x0; n + 0.5; nan];
             end
@@ -356,13 +360,28 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             end
             
             % Update the visualization.
-            envUpdatedCallback(this)
+            envUpdatedCallback(this);
         end
     end
 
     methods (Access = protected)
         function envUpdatedCallback(this)
         % ENVUPDATEDCALLBACK    Updates the environment visualization.
+            if ~isempty(this.Figure) && isvalid(this.Figure)
+                Data = 0.3 * exp(1j * (0:.2:2*pi+.2));
+                for i = 1:this.n_people
+                    if length(this.PeoplePatches) == this.n_people
+                        delete(this.PeoplePatches(i));
+                    end
+                    [curr_row, curr_col] = ind2sub([size(this.map_mat, 1) size(this.map_mat, 2)], this.State(i));
+                    XData = curr_col + real(Data);
+                    YData = -curr_row + imag(Data);
+                    this.PeoplePatches(i) = patch(this.Ax, XData, YData, this.Colors(i));
+                end
+                
+                % Refresh rendering in the figure window.
+                drawnow
+            end
         end
     end
 end
