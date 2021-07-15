@@ -318,7 +318,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
                 hold(this.Ax, 'on');
             end
             
-            % Draw the grid.
+            % Draw grid.
             delete(this.GridLines);
             m = size(this.map_mat, 1);
             n = size(this.map_mat, 2);
@@ -345,6 +345,14 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
                         patch(this.Ax, X, Y, 'k');
                     end
                 end
+            end
+            
+            % Draw targets.
+            for i = 1:length(this.targets)
+                [r, c] = ind2sub([size(this.map_mat, 1) size(this.map_mat, 2)], this.targets(i));
+                X = [c - 0.5, c + 0.5, c + 0.5, c - 0.5, c - 0.5];
+                Y = -[r - 0.5, r - 0.5, r + 0.5, r + 0.5, r - 0.5];
+                patch(this.Ax, X, Y, this.Colors(i));
             end
             
             % Update the visualization.
