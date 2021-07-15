@@ -156,7 +156,13 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
                             % Free cell: action is legit.
                             to_update = true;
                         case 2
-                            % Obstacle detected: nothing to do.
+                            % Obstacle detected: did someone got here in
+                            % the meantime?
+                            if this.map_mat(curr_row, curr_col) ~= 2 + i
+                                defeated = true;
+                                break
+                            end
+                            % If control got here, there's nothing to do.
                         otherwise
                             % Occupied cell: who got here first?
                             other_guy = this.map_mat(new_subs(1), new_subs(2)) - 2;
