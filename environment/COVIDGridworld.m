@@ -342,7 +342,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
                     if this.map_mat(r, c) == 2
                         X = [c - 0.5, c + 0.5, c + 0.5, c - 0.5, c - 0.5];
                         Y = -[r - 0.5, r - 0.5, r + 0.5, r + 0.5, r - 0.5];
-                        patch(this.Ax,X,Y,'k');
+                        patch(this.Ax, X, Y, 'k');
                     end
                 end
             end
