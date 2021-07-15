@@ -327,14 +327,25 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             y0 = 0.5;
             x0 = 0.5;
             for r = 0:m 
-                yLineData = [yLineData; y0+r; y0+r; nan];
-                xLineData = [xLineData; x0; n+0.5; nan];
+                yLineData = [yLineData; y0 + r; y0 + r; nan];
+                xLineData = [xLineData; x0; n + 0.5; nan];
             end
             for c = 0:n
-                xLineData = [xLineData; x0+c; x0+c; nan];
-                yLineData = [yLineData; y0; m+0.5; nan];
+                xLineData = [xLineData; x0 + c; x0 + c; nan];
+                yLineData = [yLineData; y0; m + 0.5; nan];
             end
             this.GridLines = plot(this.Ax, xLineData, -yLineData);
+            
+            % Draw obstacles.
+            for r = 1:size(this.map_mat, 1)
+                for c = 1:size(this.map_mat, 2)
+                    if this.map_mat(r, c) == 2
+                        X = [c - 0.5, c + 0.5, c + 0.5, c - 0.5, c - 0.5];
+                        Y = -[r - 0.5, r - 0.5, r + 0.5, r + 0.5, r - 0.5];
+                        patch(this.Ax,X,Y,'k');
+                    end
+                end
+            end
             
             % Update the visualization.
             envUpdatedCallback(this)
