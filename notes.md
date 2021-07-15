@@ -45,13 +45,16 @@ Lo stato "sconfitta" è codificato con un array di *n* zeri.
 
 ### Codifica azioni
 
-_n_ numeri da 1 a 5, ciascuno indicante un'azione tra STOP-NSWE. In Matlab, possono essere codificate usando *rlFiniteSetSpec* passandogli un cell array di vettori a *n* componenti, opportunamente formati (si veda esempio nelle docs).
+_n_ numeri da 1 a 5, ciascuno indicante un'azione tra **STOP-NSWE.** In Matlab, possono essere codificate usando *rlFiniteSetSpec* passandogli un cell array di vettori a *n* componenti, opportunamente formati (si veda esempio nelle docs).
 
 Le *azioni illegali*, i.e. i movimenti che portano alla immediata terminazione di un episodio nello stato "sconfitta", sono:
 
-- **Scambio di posizione:** Due persone si muovono l'una addosso all'altra, i.e. durante lo spostamento di una si verifica che la posizione target è occupata dall'altra. Questa cosa deve essere assolutamente evitata per ovvi motivi e può verificarsi solo quando due persone si trovano in due caselle adiacenti. **OCCHIO: Per non inficiare l'esplorazione, è necessario che il reward "molto negativo" dato in questa situazione sia davvero tale.**
+- **Collisione:** Due persone compiono un movimento il cui risultato le porta a ritrovarsi nella stessa casella.
+- **Scambio di posizione:** Due persone si muovono l'una addosso all'altra, i.e. durante lo spostamento di una si verifica che l'altra intende muoversi nella direzione esattamente opposta. Questa cosa deve essere assolutamente evitata per ovvi motivi e può verificarsi solo quando due persone si trovano in due caselle adiacenti. **OCCHIO: Per non inficiare l'esplorazione, è necessario che il reward "molto negativo" dato in questa situazione sia davvero tale.**
+
 - **Mantenimento di uno stallo:** Per più di *N* mosse consecutive, con *N* grande relativamente alle dimensioni della mappa (*property* dell'environment), viene scelta l'azione "tutti fermi" **oppure** vengono scelte azioni che fanno urtare tutte le persone contro un ostacolo. **OCCHIO: Anche in questo caso, per il reward vale quanto sopra, e potenzialmente il valore potrebbe essere lo stesso visto che stiamo parlando dello stesso stato "sconfitta".**
 
+Ciascuna di queste situazioni viene rilevata quando coinvolge due persone, e portando alla terminazione immediata dell'episodio si tiene conto banalmente delle eventualità in cui siano coinvolte più di due persone, oppure si verifichino molteplici movimenti illegali in una stessa azione.
 Una rappresentazione grafica delle varie situazioni a cura di Leonardo:
 
 ![azioni_illegali_leo](Notes/azioni_illegali.jpg)

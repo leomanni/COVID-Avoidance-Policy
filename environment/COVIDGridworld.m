@@ -135,19 +135,71 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
                 
                 % Check if the new position is feasible.
                 if curr_moved == true
+                    to_update = false;
                     switch this.map_mat(new_subs(1), new_subs(2))
                         case 1
-                            % Free cell: update map and internal state.
-                            all_still = false;
-                            this.map_mat(curr_row, curr_col) = 1;
-                            this.map_mat(new_subs(1), new_subs(2)) = 2 + i;
-                            this.State(i) = new_pos;
+                            % Free cell: action is legit.
+                            to_update = true;
                         case 2
                             % Obstacle detected: nothing to do.
                         otherwise
-                            % Occupied cell: illegal move.
-                            defeated = true;
-                            break
+                            % Occupied cell: who got here first?
+                            other_guy = this.map_mat(new_subs(1), new_subs(2)) - 2;
+                            if other_guy < i
+                                % He got here first: illegal collision.
+                                defeated = true;
+                                break
+                            else
+                                % What's he going to do?
+                                if Action(other_guy) == 1
+                                    % He's here to stay: illegal collision.
+                                    defeated = true;
+                                    break
+                                else
+                                    % Watch out for illegal crossings.
+                                    switch Action(i)
+                                        case 2
+                                            % NORTH: Is he going SOUTH?
+                                            if Action(other_guy) == 3
+                                                defeated = true;
+                                                break
+                                            end
+                                        case 3
+                                            % SOUTH: Is he going NORTH?
+                                            if Action(other_guy) == 2
+                                                defeated = true;
+                                                break
+                                            end
+                                        case 4
+                                            % WEST: Is he going EAST?
+                                            if Action(other_guy) == 5
+                                                defeated = true;
+                                                break
+                                            end
+                                        case 5
+                                            % EAST: Is he going WEST?
+                                            if Action(other_guy) == 4
+                                                defeated = true;
+                                                break
+                                            end
+                                    end
+                                    % If control got here means the
+                                    % action is legit.
+                                    to_update = true;
+                                end
+                            end
+                    end
+                    
+                    % If necessary, update map and internal state.
+                    if to_update == true
+                        all_still = false;
+                        if this.map_mat(curr_row, curr_col) == 2 + i
+                            % Must leave the cell only if no one
+                            % else got in in the meantime.
+                            this.map_mat(curr_row, curr_col) = 1;
+                        end
+                        this.map_mat(new_subs(1), new_subs(2)) = 2 + i;
+                        this.State(i) = new_pos;
                     end
                 end
             end
