@@ -11,19 +11,19 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
     properties
         % Environment constants and physical characteristics.
         % People in the map.
-        n_people = 0
+        n_people
         
         % Matrix encoding the map state in real time.
-        map_mat = []
+        map_mat
         
         % Target positions indices (depends on n_people).
-        targets = []
+        targets
         
         % Stall-leading actions counter.
         stall_acts_cnt = 0
         
         % Stall leading actions counter max value.
-        max_stall_acts = 50;
+        max_stall_acts = 50
         
         % "Defeat" state reward (depends on map size).
         defeat_rew = 0
@@ -35,18 +35,31 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
         victory_rew = 0
         
         % People positions (depends on n_people).
-        State = []
+        State
     end
 
     properties (Access = protected)
         % Internal flag to indicate episode termination.
         IsDone = false
+
+        % Plot figure handle.
+        Figure
+
+        % Plot figure axes.
+        Ax
+        
+        % Plot grid lines.
+        GridLines
+        
+        % Array of strings that specify colors to plot different people.
+        Colors
     end
 
     %% Necessary Methods
     methods
-        % Creates an instance of the environment.
-        function this = COVIDGridworld(people, map, target_indices)
+        function this = COVIDGridworld(people, map, target_indices, colors)
+        % COVIDGridworld    Creates an instance of the environment.
+            
             % Generate a cell array that holds all possible actions.
             % Works as a car odometer.
             actions_cell = cell([5 ^ people, 1]);
@@ -88,10 +101,11 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             this.targets = target_indices;
             this.State = zeros(people, 1);
             this.defeat_rew = -1000 * size(map, 1) * size(map, 2);
+            this.Colors = colors;
         end
 
-        % Simulates the environment with the given action for one step.
         function [Observation, Reward, IsDone, LoggedSignals] = step(this, Action)
+        % STEP  Simulates the environment with the given action.
             LoggedSignals = [];
             all_still = true;
             defeated = false;
@@ -246,8 +260,9 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             notifyEnvUpdated(this);
         end
 
-        % Resets environment and observation to initial state.
         function InitialObservation = reset(this)
+        % RESET Resets environment and observation to initial state.
+            
             % Reset counters and other properties.
             this.stall_acts_cnt = 0;
             this.IsDone = false;
@@ -291,9 +306,35 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
 
     %% Auxiliary Methods
     methods
-        % Visualization method.
         function plot(this)
-            % Initiate the visualization.
+            % PLOT  Creates a visualization of the environment.
+            if isempty(this.Figure) || ~ishandle(this.Figure)
+                % Create the figure.
+                this.Figure = figure('MenuBar','none','Toolbar','none', 'Visible', 'on', 'Name', 'COVIDGridworld');
+                this.Ax = axes('Parent', this.Figure);
+                this.Ax.Toolbar.Visible = 'off';
+                this.Ax.Visible = 'off';
+                axis(this.Ax, 'equal')
+                hold(this.Ax, 'on');
+            end
+            
+            % Draw the grid.
+            delete(this.GridLines);
+            m = size(this.map_mat, 1);
+            n = size(this.map_mat, 2);
+            xLineData = [];
+            yLineData = [];
+            y0 = 0.5;
+            x0 = 0.5;
+            for r = 0:m 
+                yLineData = [yLineData; y0+r; y0+r; nan];
+                xLineData = [xLineData; x0; n+0.5; nan];
+            end
+            for c = 0:n
+                xLineData = [xLineData; x0+c; x0+c; nan];
+                yLineData = [yLineData; y0; m+0.5; nan];
+            end
+            this.GridLines = plot(this.Ax, xLineData, -yLineData);
             
             % Update the visualization.
             envUpdatedCallback(this)
@@ -301,9 +342,8 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
     end
 
     methods (Access = protected)
-        % (optional) update visualization everytime the environment is updated 
-        % (notifyEnvUpdated is called)
         function envUpdatedCallback(this)
+        % ENVUPDATEDCALLBACK    Updates the environment visualization.
         end
     end
 end
