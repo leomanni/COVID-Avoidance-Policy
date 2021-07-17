@@ -24,6 +24,8 @@ Detto ciò, cosa succede se:
 - Si verifica uno *stallo* i.e. l'agente mantiene tutti fermi: in base all'epsilon della politica di esplorazione, si definisce una soglia di volte che l'azione "tutti fermi" può essere scelta consecutivamente, oltre la quale l'episodio viene terminato nello stato "sconfitta".
 - Si esegue una azione illegale: si termina nello stato "sconfitta".
 
+Il COVID è simulato mediante una probabilità uniforme di contagio che viene applicata ad ogni istante a tutte le persone che si trovano in presenza di un infetto entro una certa area. Gli infetti inizialmente presenti sono decisi casualmente all'avvio di ogni nuovo episodio, con distribuzione anch'essi uniforme, in numero massimo pari alla parte intera superiore della metà del numero di persone nell'environment e minimo pari ad 1.
+
 ### Codifica mappa
 
 Matrice quadrata *M* con elementi scelti secondo:
