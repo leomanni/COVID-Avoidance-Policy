@@ -232,6 +232,8 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
                     % Stalled for too long.
                     defeated = true;
                 end
+            else
+                this.stall_acts_cnt = 0;
             end
             
             % "Defeat" state: set return values and get out.
