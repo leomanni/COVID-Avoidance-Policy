@@ -10,7 +10,7 @@ Durante i movimenti, la probabilità d'infezione dipende dalla distanza, cioè s
 - [x] Definire azioni "illegali" da mappare in uno stato terminale unico "sconfitta". (Leonardo)
 
 - [x] Definire la mappa, con ostacoli di confine ed ostacoli interni. Mappe per 4 (circa 6x6), e poi una più grande. (Edoardo)
-- [ ] Studiare implementazione environment custom in RL Toolbox (Create Custom MATLAB Environments from Template) (Roberto).
+- [x] Studiare implementazione environment custom in RL Toolbox (Create Custom MATLAB Environments from Template) (Roberto).
 - [x] Studiare implementazione agente DQN da RL Toolbox usando le *osservazioni* ed *action specifications* proprie dell'environment custom e definite di seguito. (Emanuele, Filippo).
 - [x] Definire codifica stati.
 - [x] Definire codifica azioni.
