@@ -34,7 +34,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
         % "Victory" state base reward.
         victory_rew = 0
 
-        % COVID-19 infected people.
+        % COVID-19 infected people flags.
         infected_people
 
         % Starting number of COVID-19 infected.
@@ -322,6 +322,14 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
                         break
                     end
                 end
+            end
+            
+            % Set initially infected people.
+            this.infected_people = zeros(this.n_people, 1);
+            this.infected_init = randi(ceil(0.5 * this.n_people));
+            to_infect = randperm(this.n_people, this.infected_init);
+            for i = to_infect
+                this.infected_people(i) = 1;
             end
             
             % Signal that the environment has been updated.
