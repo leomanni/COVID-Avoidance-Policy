@@ -128,6 +128,29 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             defeated = false;
             this.IsDone = false;
             
+            % First, check for contagion.
+            for i = 1:this.n_people
+                curr_pos = this.State(i);
+                [curr_row, curr_col] = ind2sub([size(this.map_mat, 1) size(this.map_mat, 2)], curr_pos);
+                for r = (curr_row - this.contagion_zone_radius):(curr_row + this.contagion_zone_radius)
+                    if (r < 1) || (r > size(this.map_mat, 1))
+                        continue
+                    end
+                    for c = (curr_col - this.contagion_zone_radius):(curr_col + this.contagion_zone_radius)
+                        if (c < 1) || (c > size(this.map_mat, 2))
+                            continue
+                        end
+                        if (this.map_mat(r, c) > 2) && (this.infected_people(this.map_mat(r, c) - 2) == 1)
+                            % An infected is nearby: contagion is now
+                            % possible.
+                            if binornd(1, this.contagion_prob) == 1
+                                this.infected_people(i) = 1;
+                            end
+                        end
+                    end
+                end
+            end
+            
             % Process each person's movements.
             for i = 1:this.n_people
                 curr_moved = false;
@@ -273,7 +296,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
                 this.IsDone = true;
                 IsDone = true;
                 Observation = this.State;
-                Reward = this.victory_rew;
+                Reward = this.victory_rew + this.infected_delta_gain * (sum(this.infected_people) - this.infected_init);
                 notifyEnvUpdated(this);
                 return
             end
