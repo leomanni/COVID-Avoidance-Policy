@@ -31,8 +31,23 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
         % Single step reward.
         single_step_rew = -1
         
-        % "Victory" state reward.
+        % "Victory" state base reward.
         victory_rew = 0
+
+        % COVID-19 infected people.
+        infected_people
+
+        % Starting number of COVID-19 infected.
+        infected_init
+
+        % COVID-19 contagion probability.
+        contagion_prob
+
+        % COVID-19 infected delta reward multiplier.
+        infected_delta_gain = -100
+
+        % COVID-19 contagion risk zone radius.
+        contagion_zone_radius = 1
         
         % People positions (depends on n_people).
         State
@@ -58,7 +73,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
 
     %% Necessary Methods
     methods
-        function this = COVIDGridworld(people, map, target_indices, colors)
+        function this = COVIDGridworld(people, map, target_indices, colors, covid_prob)
         % COVIDGridworld    Creates an instance of the environment.
             
             % Generate a cell array that holds all possible actions.
@@ -103,6 +118,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             this.State = zeros(people, 1);
             this.defeat_rew = -1000 * size(map, 1) * size(map, 2);
             this.Colors = colors;
+            this.contagion_prob = covid_prob;
         end
 
         function [Observation, Reward, IsDone, LoggedSignals] = step(this, Action)
