@@ -130,6 +130,10 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             
             % First, check for contagion.
             for i = 1:this.n_people
+                if this.infected_people(i) == 1
+                    % Already infected, move on.
+                    continue
+                end
                 curr_pos = this.State(i);
                 [curr_row, curr_col] = ind2sub([size(this.map_mat, 1) size(this.map_mat, 2)], curr_pos);
                 for r = (curr_row - this.contagion_zone_radius):(curr_row + this.contagion_zone_radius)
