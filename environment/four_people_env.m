@@ -9,7 +9,7 @@ close all
 clc
 
 [map, targets] = four_people_map();
-covid_four_env = COVIDGridworld(4, map, targets, 'rgby');
+covid_four_env = COVIDGridworld(4, map, targets, {'r', 'g', 'b', 'y'});
 
 %% Validate and reset the new environment.
 validateEnvironment(covid_four_env);

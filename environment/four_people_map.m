@@ -6,6 +6,7 @@
 
 function [grid, targets] = four_people_map()
 % 4PEOPLE_MAP Generates 4-people COVID gridworld map as matrix.
+
     % Map cells encoding values.
     free_val = 1;
     obstacle_val = 2;

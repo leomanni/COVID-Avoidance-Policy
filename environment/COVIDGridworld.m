@@ -364,7 +364,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
                 [r, c] = ind2sub([size(this.map_mat, 1) size(this.map_mat, 2)], this.targets(i));
                 X = [c - 0.5, c + 0.5, c + 0.5, c - 0.5, c - 0.5];
                 Y = -[r - 0.5, r - 0.5, r + 0.5, r + 0.5, r - 0.5];
-                patch(this.Ax, X, Y, this.Colors(i));
+                patch(this.Ax, X, Y, this.Colors{i});
             end
             
             % Update the visualization.
@@ -384,7 +384,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
                     [curr_row, curr_col] = ind2sub([size(this.map_mat, 1) size(this.map_mat, 2)], this.State(i));
                     XData = curr_col + real(Data);
                     YData = -curr_row + imag(Data);
-                    this.PeoplePatches(i) = patch(this.Ax, XData, YData, this.Colors(i));
+                    this.PeoplePatches(i) = patch(this.Ax, XData, YData, this.Colors{i});
                 end
                 
                 % Refresh rendering in the figure window.
