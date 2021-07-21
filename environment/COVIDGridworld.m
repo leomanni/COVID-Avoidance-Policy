@@ -353,7 +353,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             
             % Set initially infected people.
             this.infected_people = zeros(this.n_people, 1);
-            this.infected_init = randi(ceil(0.5 * this.n_people));
+            this.infected_init = randi(this.n_people - 1);
             to_infect = randperm(this.n_people, this.infected_init);
             for i = to_infect
                 this.infected_people(i) = 1;
