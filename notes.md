@@ -2,18 +2,7 @@
 
 Il problema è episodico, a singolo agente. L'obiettivo è spostare *n* persone entro una mappa gridworld da una posizione iniziale casuale ad una finale prefissata.
 Il reward finale è complessivo delle mosse effettuate (i.e. del tempo impiegato), dell'eventuale scorretto posizionamento delle persone (ossia, ci sono delle mosse effettivamente illegali) e dei contagi avvenuti.
-Durante i movimenti, la probabilità d'infezione dipende dalla distanza, cioè se due persone o più persone si trovano entro un certo raggio da un infetto hanno ad ogni istante di tempo una certa probabilità di contrarre la malattia. Il numero di persone inizialmente infette in ogni episodio deve essere casuale. **Ad oggi 3/7/2021 questa feature verrà aggiunta solo successivamente, non appena la correttezza del modello e della sua implementazione saranno state verificate.**
-**NOTA: Se nel seguito alcune note dovessero risultare sconclusionate, è perché riguardano aspetti implementativi ancora da provare.**
-
-## DA FARE
-
-- [x] Definire azioni "illegali" da mappare in uno stato terminale unico "sconfitta". (Leonardo)
-
-- [x] Definire la mappa, con ostacoli di confine ed ostacoli interni. Mappe per 4 (circa 6x6), e poi una più grande. (Edoardo)
-- [ ] Studiare implementazione environment custom in RL Toolbox (Create Custom MATLAB Environments from Template) (Roberto).
-- [x] Studiare implementazione agente DQN da RL Toolbox usando le *osservazioni* ed *action specifications* proprie dell'environment custom e definite di seguito. (Emanuele, Filippo).
-- [x] Definire codifica stati.
-- [x] Definire codifica azioni.
+Durante i movimenti, la probabilità d'infezione dipende dalla distanza, cioè se due persone o più persone si trovano entro un certo raggio da un infetto hanno ad ogni istante di tempo una certa probabilità di contrarre la malattia. Il numero di persone inizialmente infette in ogni episodio deve essere casuale.
 
 ## Environment e sua dinamica
 
@@ -24,7 +13,8 @@ Detto ciò, cosa succede se:
 - Si verifica uno *stallo* i.e. l'agente mantiene tutti fermi: in base all'epsilon della politica di esplorazione, si definisce una soglia di volte che l'azione "tutti fermi" può essere scelta consecutivamente, oltre la quale l'episodio viene terminato nello stato "sconfitta".
 - Si esegue una azione illegale: si termina nello stato "sconfitta".
 
-Il COVID è simulato mediante una probabilità uniforme di contagio che viene applicata ad ogni istante a tutte le persone che si trovano in presenza di un infetto entro una certa area. Gli infetti inizialmente presenti sono decisi casualmente all'avvio di ogni nuovo episodio, con distribuzione anch'essi uniforme, in numero massimo pari alla parte intera superiore della metà del numero di persone nell'environment e minimo pari ad 1.
+Il COVID è simulato mediante una probabilità uniforme di contagio che viene applicata ad ogni istante a tutte le persone che si trovano in presenza di un infetto entro una certa area quadrata, specificata da un parametro dell'environment denominato *radius*, in numero di celle, di default posto ad 1.
+Gli infetti inizialmente presenti sono decisi casualmente all'avvio di ogni nuovo episodio, con distribuzione anch'essi uniforme, **in numero minimo pari ad 1 e massimo pari al numero di persone presenti meno uno**. Questa scelta è motivata dal fatto che episodi con nessun infetto, o tutti infetti, non sarebbero utili ai fini dell'apprendimento dell'agente, e potrebbero addirittura inficiarlo dato che modellano situazioni non contemplate nel nostro modello poiché di nessuna utilità.
 
 ### Codifica mappa
 
@@ -41,7 +31,7 @@ E' opportuno che l'environment abbia la matrice *M* tra le *properties*, per uso
 Posizione delle singole persone nella mappa, come ad esempio numero della casella occupata in column-major order (purtroppo Matlab è così...). In Matlab, possono essere codificati in due modi:
 
 - Usando *rlFiniteSetSpec*, probabilmente come specificato per le azioni di seguito, basandosi su una raccolta delle componenti "libere" di *M* (che può essere eseguita anche una volta per tutte all'inizio). Ciò però potrebbe andare contro il modo in cui abbiamo deciso di rappresentare il problema, in quanto non usando metodi tabellari abbiamo 
-- Usando *rlNumericSpec*. E' effettivamente creata per spazi di stato continui, che potrebbe essere un'approssimazione della nostra situazione in cui abbiamo "troppi" stati, ma dovendo essere noi a gestire le transizioni saremmo sempre noi ad assegnare i valori opportuni alle variabili di stato, definite entro degli opportuni intervalli, e l'agente comunque non dovrebbe mantenere memoria di quali sono tutti gli stati ma soltanto imparare ad agire di conseguenza in ciascuno di essi grazie alla NN. **Ad oggi 10/7/2021 si tenterà dapprima di implementare l'environment, e di conseguenza il DQN agent, usando questa rappresentazione.*
+- Usando *rlNumericSpec*. E' effettivamente creata per spazi di stato continui, che potrebbe essere un'approssimazione della nostra situazione in cui abbiamo "troppi" stati, ma dovendo essere noi a gestire le transizioni saremmo sempre noi ad assegnare i valori opportuni alle variabili di stato, definite entro degli opportuni intervalli, e l'agente comunque non dovrebbe mantenere memoria di quali sono tutti gli stati ma soltanto imparare ad agire di conseguenza in ciascuno di essi grazie alla NN.
 
 Lo stato "sconfitta" è codificato con un array di *n* zeri.
 
