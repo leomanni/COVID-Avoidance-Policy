@@ -14,3 +14,5 @@ covid_four_env = COVIDGridworld(4, map, targets, {'r', 'g', 'b', 'y'});
 %% Validate and reset the new environment.
 validateEnvironment(covid_four_env);
 covid_four_env.reset();
+critic_agent = makeCriticAgent(covid_four_env);
+

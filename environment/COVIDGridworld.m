@@ -6,7 +6,7 @@
 
 classdef COVIDGridworld < rl.env.MATLABEnvironment
     %COVIDGRIDWORLD: Multiple people RL gridworld.
-
+    
     %% Gridworld Properties
     properties
         % Environment constants and physical characteristics.
@@ -36,49 +36,65 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
         
         % People positions (depends on n_people).
         State
-
+        
         % Internal flag to indicate episode termination.
         IsDone = false
-
+        
         % Plot figure handle.
         Figure
-
+        
         % Plot figure axes.
         Ax
-
+        
         % Plot grid lines.
         GridLines
-
+        
         % Handles for people plot patches.
         PeoplePatches
-
+        
         % Array of strings that specify colors to plot different people.
-        Colors
+        Colors               
     end
-
+    
     %% Necessary Methods
     methods
         function this = COVIDGridworld(people, map, target_indices, colors)
-        % COVIDGridworld    Creates an instance of the environment.
+            % COVIDGridworld    Creates an instance of the environment.
             
             % Generate a cell array that holds all possible actions.
             % Works as a car odometer.
-            actions_cell = cell([5 ^ people, 1]);
-            prev_cell = ones(people, 1);
-            actions_cell{1} = prev_cell;
-            for i = 2:(5 ^ people)
-                prev_cell = actions_cell{i - 1};
-                for j = 1:people
-                    prev_cell(j) = prev_cell(j) + 1;
-                    if prev_cell(j) == 6
-                        prev_cell(j) = 1;
-                        continue
-                    else
-                        break
-                    end
+            %             actions_cell = cell([5 ^ people, 1]);
+            %             prev_cell = ones(people, 1);
+            %             actions_cell{1} = prev_cell;
+            %             for i = 2:(5 ^ people)
+            %                 prev_cell = actions_cell{i - 1};
+            %                 for j = 1:people
+            %                     prev_cell(j) = prev_cell(j) + 1;
+            %                     if prev_cell(j) == 6
+            %                         prev_cell(j) = 1;
+            %                         continue
+            %                     else
+            %                         break
+            %                     end
+            %                 end
+            %                 actions_cell{i} = prev_cell;
+            %             end
+            
+            vectComb = zeros (5^people, people);
+            endCond = ones(1,people)*5;
+            for i = 1 : height(vectComb)
+                comb = dec2base(i-1,5);
+                for j = 1 : length(comb)
+                    vectComb(i, (people -length(comb)) + j) = str2double(comb(j));
                 end
-                actions_cell{i} = prev_cell;
             end
+            vectComb = vectComb + 1; % to have action from 1 to 5
+            % Transform the combination table in a cel list
+            actions_cell = {};
+            for act = 1:height(vectComb)
+                actions_cell = [actions_cell;{vectComb(act,:)'}]; % Transpose the input because the network layer is a column
+            end
+            
             
             % Initialize Observation settings.
             ObservationInfo = rlNumericSpec([people 1]);
@@ -104,9 +120,9 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             this.defeat_rew = -1000 * size(map, 1) * size(map, 2);
             this.Colors = colors;
         end
-
+        
         function [Observation, Reward, IsDone, LoggedSignals] = step(this, Action)
-        % STEP  Simulates the environment with the given action.
+            % STEP  Simulates the environment with the given action.
             LoggedSignals = [];
             all_still = true;
             defeated = false;
@@ -268,9 +284,9 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             Reward = this.single_step_rew;
             notifyEnvUpdated(this);
         end
-
+        
         function InitialObservation = reset(this)
-        % RESET Resets environment and observation to initial state.
+            % RESET Resets environment and observation to initial state.
             
             % Reset counters and other properties.
             this.stall_acts_cnt = 0;
@@ -312,7 +328,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             notifyEnvUpdated(this);
         end
     end
-
+    
     %% Auxiliary Methods
     methods
         function plot(this)
@@ -371,10 +387,10 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             envUpdatedCallback(this);
         end
     end
-
+    
     methods (Access = protected)
         function envUpdatedCallback(this)
-        % ENVUPDATEDCALLBACK    Updates the environment visualization.
+            % ENVUPDATEDCALLBACK    Updates the environment visualization.
             if ~isempty(this.Figure) && isvalid(this.Figure)
                 Data = 0.3 * exp(1j * (0:.2:2*pi+.2));
                 for i = 1:this.n_people
