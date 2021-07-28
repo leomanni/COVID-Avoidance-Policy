@@ -23,7 +23,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
         stall_acts_cnt = 0
         
         % Stall leading actions counter max value.
-        max_stall_acts = 50
+        max_stall_acts = 3
         
         % "Defeat" state reward (depends on map size).
         defeat_rew = 0
@@ -53,7 +53,13 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
         PeoplePatches
         
         % Array of strings that specify colors to plot different people.
-        Colors               
+        Colors
+        
+        % Episode Step
+        stepEpisode
+        
+        % Global num cel size
+        numCells
     end
     
     %% Necessary Methods
@@ -81,7 +87,6 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             %             end
             
             vectComb = zeros (5^people, people);
-            endCond = ones(1,people)*5;
             for i = 1 : height(vectComb)
                 comb = dec2base(i-1,5);
                 for j = 1 : length(comb)
@@ -95,13 +100,14 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
                 actions_cell = [actions_cell;{vectComb(act,:)'}]; % Transpose the input because the network layer is a column
             end
             
+            numCells = size(map, 1) * size(map, 2);
             
             % Initialize Observation settings.
             ObservationInfo = rlNumericSpec([people 1]);
             ObservationInfo.Name = 'COVIDGridworld Observation';
             ObservationInfo.Description = 'People positions';
             ObservationInfo.LowerLimit = 0;
-            ObservationInfo.UpperLimit = size(map, 1) * size(map, 2);
+            ObservationInfo.UpperLimit = numCells;
             
             % Initialize Action settings.
             ActionInfo = rlFiniteSetSpec(actions_cell);
@@ -117,8 +123,10 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             this.map_mat = map;
             this.targets = target_indices;
             this.State = zeros(people, 1);
-            this.defeat_rew = -1000 * size(map, 1) * size(map, 2);
+            this.defeat_rew = -1000 * numCells;
             this.Colors = colors;
+            this.stepEpisode = 0;
+            this.numCells = numCells;
         end
         
         function [Observation, Reward, IsDone, LoggedSignals] = step(this, Action)
@@ -127,7 +135,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             all_still = true;
             defeated = false;
             this.IsDone = false;
-            
+            this.stepEpisode = this.stepEpisode + 1;
             % Process each person's movements.
             for i = 1:this.n_people
                 curr_moved = false;
@@ -291,6 +299,8 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             % Reset counters and other properties.
             this.stall_acts_cnt = 0;
             this.IsDone = false;
+            this.stepEpisode = 0;
+            
             
             % Clear the map from people (not the first time!).
             if this.State(1) ~= 0
@@ -363,7 +373,9 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
                 yLineData = [yLineData; y0; m + 0.5; nan];
             end
             this.GridLines = plot(this.Ax, xLineData, -yLineData);
-            
+            title("Step: " + this.stepEpisode);
+            text(5,5,'TEST TEXT')
+
             % Draw obstacles.
             for r = 1:size(this.map_mat, 1)
                 for c = 1:size(this.map_mat, 2)

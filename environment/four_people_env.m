@@ -16,12 +16,32 @@ validateEnvironment(covid_four_env);
 covid_four_env.reset();
 
 %% Train the agent
-critic_agent = makeCriticAgent(covid_four_env);
-opt = rlTrainingOptions(...
-    'MaxEpisodes',1000,...
+[sarsa_agent] = makeCriticAgent(covid_four_env);
+trainOpts = rlTrainingOptions(...
+    'MaxEpisodes',1e5,...
     'MaxStepsPerEpisode',1000,...
     'StopTrainingCriteria',"AverageReward",...
-    'StopTrainingValue',480,...
-    'UseParallel', true);
+    'StopTrainingValue',480, ...
+    'Verbose',true,...
+    'Plots',"training-progress" ... %
+     );
+%     'SaveAgentCriteria',"EpisodeCount",'SaveAgentValue', 100 ...
+%     );
 
-trainStats = train(critic_agent,covid_four_env,opt);
+% trainOpts.UseParallel = true;
+trainOpts.ParallelizationOptions.Mode = "async";
+trainOpts.ParallelizationOptions.DataToSendFromWorkers = "gradients";%for A3C
+trainOpts.ParallelizationOptions.StepsUntilDataIsSent = 20;
+trainOpts.ParallelizationOptions.WorkerRandomSeeds = -1;
+trainOpts.StopOnError = 'off';
+%%
+plot(covid_four_env);
+trainStats = train(sarsa_agent,covid_four_env,trainOpts);
+
+% load('savedAgents/Agent5.mat')
+% trainStats = train(saved_agent,covid_four_env,trainOpts);
+
+
+% trainStats = train(DQL_agent,covid_four_env,trainOpts);
+
+save("sarsaTrain.mat",'trainStats');

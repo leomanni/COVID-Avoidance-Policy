@@ -1,10 +1,10 @@
-function critic_agent = makeCriticAgent(envCovid)
+function [sarsa_agent] = makeCriticAgent(envCovid)
     % we expect to receive a COVIDGridworld
 
     obsInfo = envCovid.getObservationInfo;
     actInfo = envCovid.getActionInfo;
 
-    cells_num = obsInfo.UpperLimit;
+    cells_num = envCovid.numCells;
     % nella variante in cui gli input sono tutte le celle, e non solo la
     % posizione dei giocatori:
     % cells_num = obsInfo.Dimension(1) + actInfo.Dimension(1);
@@ -43,14 +43,23 @@ function critic_agent = makeCriticAgent(envCovid)
     lgraph = connectLayers(lgraph,"StateInput","concat/in1"); %in1 da man di connectLayers
     lgraph = connectLayers(lgraph,"ActionInput","concat/in2"); %in2 da man di connectLayers
 
-    % ############## agent SARSA create ##############
+    % ############## Critic create ##############
+    device = "cpu";
+    critic_opt = rlRepresentationOptions('UseDevice',device, "Optimizer","adam", 'LearnRate',0.025);
+    critic = rlQValueRepresentation(lgraph,obsInfo,actInfo,'Observation',"StateInput",'Action',"ActionInput", critic_opt) ;
 
-    critic = rlQValueRepresentation(lgraph,obsInfo,actInfo,'Observation',"StateInput",'Action',"ActionInput") ;
+    % ############## Agents create ##############
+    optSarsa = rlSARSAAgentOptions;
+    optSarsa.EpsilonGreedyExploration.Epsilon = 0.5;
+    optSarsa.EpsilonGreedyExploration.EpsilonDecay = 0.001;
+    optSarsa.EpsilonGreedyExploration.EpsilonMin = 0.01;
+    sarsa_agent = rlSARSAAgent(critic,optSarsa);
+    
+%     optDQL = rlDQNAgentOptions('MiniBatchSize',48);
+%     optDQL.EpsilonGreedyExploration.Epsilon = 0.05;
+%     DQL_agent = rlDQNAgent(critic,optDQL);
 
-    opt = rlSARSAAgentOptions;
-    opt.EpsilonGreedyExploration.Epsilon = 0.05;
-
-    critic_agent = rlSARSAAgent(critic,opt);
-
+%     optDQL = rlAgentInitializationOptions('NumHiddenUnit',cells_num * 4);
+%     DQL_agent = rlDQNAgent(obsInfo, actInfo ,optDQL);
 end
 
