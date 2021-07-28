@@ -23,25 +23,20 @@ trainOpts = rlTrainingOptions(...
     'StopTrainingCriteria',"AverageReward",...
     'StopTrainingValue',480, ...
     'Verbose',true,...
-    'Plots',"training-progress" ... %
-     );
-%     'SaveAgentCriteria',"EpisodeCount",'SaveAgentValue', 100 ...
-%     );
+    'Plots',"training-progress");
 
 % trainOpts.UseParallel = true;
 trainOpts.ParallelizationOptions.Mode = "async";
-trainOpts.ParallelizationOptions.DataToSendFromWorkers = "gradients";%for A3C
+trainOpts.ParallelizationOptions.DataToSendFromWorkers = "gradients"; %for A3C
 trainOpts.ParallelizationOptions.StepsUntilDataIsSent = 20;
 trainOpts.ParallelizationOptions.WorkerRandomSeeds = -1;
 trainOpts.StopOnError = 'off';
 %%
-plot(covid_four_env);
+% plot(covid_four_env);
 trainStats = train(sarsa_agent,covid_four_env,trainOpts);
+save("sarsaTrain.mat",'trainStats','covid_four_env','trainOpts');
 
-% load('savedAgents/Agent5.mat')
-% trainStats = train(saved_agent,covid_four_env,trainOpts);
+%% RESUME
 
-
-% trainStats = train(DQL_agent,covid_four_env,trainOpts);
-
-save("sarsaTrain.mat",'trainStats');
+% load('sarsaTrain.mat')
+% trainStats = train(trainStats,covid_four_env,trainOpts);
