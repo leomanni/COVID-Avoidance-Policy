@@ -35,7 +35,15 @@ trainOpts.StopOnError = 'off';
 % plot(covid_four_env);
 trainStats = train(sarsa_agent,covid_four_env,trainOpts);
 save("sarsaTrain.mat",'trainStats','covid_four_env','trainOpts');
-
+% close
+% for i = 1:1000
+%     trainStats= train(sarsa_agent,covid_four_env,trainOpts);
+%     save("sarsaTrainFor.mat",'trainStats','covid_four_env','trainOpts');
+%     close
+% end
+% Extract Weight of the network
+critic = getCritic(sarsa_agent);
+criticParams = getLearnableParameters(critic);
 %% RESUME
 
 % load('sarsaTrain.mat')
