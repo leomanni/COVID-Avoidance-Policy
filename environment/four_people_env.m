@@ -45,7 +45,7 @@ save("sarsaTrain.mat",'trainStats','covid_four_env','trainOpts');
 % Extract Weight of the network
 critic = getCritic(sarsa_agent);
 criticParams = getLearnableParameters(critic);
-%% RESUME
 
+%% RESUME
 % load('sarsaTrain.mat')
 % trainStats = train(trainStats,covid_four_env,trainOpts);
