@@ -1,4 +1,4 @@
-% Script to generate a 4-people environment, and validate it.
+% Script to generate a 4-people environment and train a SARSA agent in it.
 % -------------------------------------------------------------------------
 % Roberto Masocco, Edoardo Rossi, Leonardo Manni, Filippo Badalamenti,
 % Emanuele Alfano
@@ -15,13 +15,13 @@ covid_four_env = COVIDGridworld(4, map, targets, {'r', 'g', 'b', 'y'});
 validateEnvironment(covid_four_env);
 covid_four_env.reset();
 
-%% Train the agent
-[sarsa_agent] = makeCriticAgent(covid_four_env);
+%% Create the training algorithm.
+sarsa_agent = makeCriticAgent(covid_four_env);
 trainOpts = rlTrainingOptions(...
     'MaxEpisodes',1e5,...
     'MaxStepsPerEpisode',1000,...
     'StopTrainingCriteria',"AverageReward",...
-    'StopTrainingValue',480, ...
+    'StopTrainingValue',0, ...
     'Verbose',true,...
     'Plots',"training-progress");
 
@@ -31,12 +31,21 @@ trainOpts.ParallelizationOptions.DataToSendFromWorkers = "gradients"; %for A3C
 trainOpts.ParallelizationOptions.StepsUntilDataIsSent = 20;
 trainOpts.ParallelizationOptions.WorkerRandomSeeds = -1;
 trainOpts.StopOnError = 'off';
-%%
+
+%% Train the agent in the environment.
 % plot(covid_four_env);
 trainStats = train(sarsa_agent,covid_four_env,trainOpts);
 save("sarsaTrain.mat",'trainStats','covid_four_env','trainOpts');
+% close
+% for i = 1:1000
+%     trainStats= train(sarsa_agent,covid_four_env,trainOpts);
+%     save("sarsaTrainFor.mat",'trainStats','covid_four_env','trainOpts');
+%     close
+% end
+% Extract Weight of the network
+critic = getCritic(sarsa_agent);
+criticParams = getLearnableParameters(critic);
 
 %% RESUME
-
 % load('sarsaTrain.mat')
 % trainStats = train(trainStats,covid_four_env,trainOpts);

@@ -3,17 +3,7 @@
 Il problema è episodico, a singolo agente. L'obiettivo è spostare *n* persone entro una mappa gridworld da una posizione iniziale casuale ad una finale prefissata.
 Il reward finale è complessivo delle mosse effettuate (i.e. del tempo impiegato), dell'eventuale scorretto posizionamento delle persone (ossia, ci sono delle mosse effettivamente illegali) e dei contagi avvenuti.
 Durante i movimenti, la probabilità d'infezione dipende dalla distanza, cioè se due persone o più persone si trovano entro un certo raggio da un infetto hanno ad ogni istante di tempo una certa probabilità di contrarre la malattia. Il numero di persone inizialmente infette in ogni episodio deve essere casuale. **Ad oggi 3/7/2021 questa feature verrà aggiunta solo successivamente, non appena la correttezza del modello e della sua implementazione saranno state verificate.**
-**NOTA: Se nel seguito alcune note dovessero risultare sconclusionate, è perché riguardano aspetti implementativi ancora da provare.**
-
-## DA FARE
-
-- [x] Definire azioni "illegali" da mappare in uno stato terminale unico "sconfitta". (Leonardo)
-
-- [x] Definire la mappa, con ostacoli di confine ed ostacoli interni. Mappe per 4 (circa 6x6), e poi una più grande. (Edoardo)
-- [x] Studiare implementazione environment custom in RL Toolbox (Create Custom MATLAB Environments from Template) (Roberto).
-- [x] Studiare implementazione agente DQN da RL Toolbox usando le *osservazioni* ed *action specifications* proprie dell'environment custom e definite di seguito. (Emanuele, Filippo).
-- [x] Definire codifica stati.
-- [x] Definire codifica azioni.
+**NOTA: Se nel seguito alcune note dovessero risultare sconclusionate, è perché riguardano aspetti implementativi ancora da provare.
 
 ## Environment e sua dinamica
 
@@ -36,12 +26,12 @@ E' opportuno che l'environment abbia la matrice *M* tra le *properties*, per uso
 
 ### Codifica stati
 
-Posizione delle singole persone nella mappa, come ad esempio numero della casella occupata in column-major order (purtroppo Matlab è così...). In Matlab, possono essere codificati in due modi:
+Posizione delle singole persone nella mappa, come ad esempio numero della casella occupata in column-major order (purtroppo Matlab è così...), oppure coppie *(riga, colonna)* per ogni persona. In Matlab, possono essere codificati in due modi:
 
-- Usando *rlFiniteSetSpec*, probabilmente come specificato per le azioni di seguito, basandosi su una raccolta delle componenti "libere" di *M* (che può essere eseguita anche una volta per tutte all'inizio). Ciò però potrebbe andare contro il modo in cui abbiamo deciso di rappresentare il problema, in quanto non usando metodi tabellari abbiamo 
-- Usando *rlNumericSpec*. E' effettivamente creata per spazi di stato continui, che potrebbe essere un'approssimazione della nostra situazione in cui abbiamo "troppi" stati, ma dovendo essere noi a gestire le transizioni saremmo sempre noi ad assegnare i valori opportuni alle variabili di stato, definite entro degli opportuni intervalli, e l'agente comunque non dovrebbe mantenere memoria di quali sono tutti gli stati ma soltanto imparare ad agire di conseguenza in ciascuno di essi grazie alla NN. **Ad oggi 10/7/2021 si tenterà dapprima di implementare l'environment, e di conseguenza il DQN agent, usando questa rappresentazione.*
+- Usando *rlFiniteSetSpec*, probabilmente come specificato per le azioni di seguito, basandosi su una raccolta delle componenti "libere" di *M* (che può essere eseguita anche una volta per tutte all'inizio). Ciò però potrebbe andare contro il modo in cui abbiamo deciso di rappresentare il problema, in quanto abbiamo rinunciato all'impiego dei metodi tabellari proprio per evitare di dover enumerare tutti i possibili stati.
+- Usando *rlNumericSpec*. E' effettivamente creata per spazi di stato continui, che potrebbe essere un'approssimazione della nostra situazione in cui abbiamo "troppi" stati, ma dovendo essere noi a gestire le transizioni saremmo sempre noi ad assegnare i valori opportuni alle variabili di stato, definite entro degli opportuni intervalli, e l'agente comunque non dovrebbe mantenere memoria di quali sono tutti gli stati ma soltanto imparare ad agire di conseguenza in ciascuno di essi grazie alla NN.
 
-Lo stato "sconfitta" è codificato con un array di *n* zeri.
+Lo stato "sconfitta" è codificato con un array di lunghezza *n* con tutte le componenti pari ad 1.
 
 ### Codifica azioni
 
@@ -80,4 +70,4 @@ Dovrebbe bastare un unico hidden layer. Testare numero hidden units, iniziare da
 
 #### Input units
 
-_2n_ input units: le prime _n_ codificano la posizione, in column-major order nella matrice _M_ della mappa, di ciascuna persona, le seconde _n_ codificano con numeri da 1 a 5 le azioni da impartire a ciascuna persona.
+_3n_ input units: le prime _2n_ codificano la posizione di ciascuna persona essendone per ciascuna prima *riga* e poi *colonna*, le seconde _n_ codificano con numeri da 1 a 5 le azioni da impartire a ciascuna persona.

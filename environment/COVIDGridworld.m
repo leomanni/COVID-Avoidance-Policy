@@ -23,12 +23,12 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
         stall_acts_cnt = 0
         
         % Stall leading actions counter max value.
-        max_stall_acts = 3
+        max_stall_acts = 10
         
         % "Defeat" state reward (depends on map size).
         defeat_rew = 0
         
-        % Single step reward.
+        % Single step reward coefficient.
         single_step_rew = -1
         
         % "Victory" state reward.
@@ -55,59 +55,46 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
         % Array of strings that specify colors to plot different people.
         Colors
         
-        % Episode Step
-        stepEpisode
+        % Current episode step.
+        episode_step
         
-        % Global num cel size
-        numCells
+        % Total number of cells in the map.
+        num_cells
     end
     
     %% Necessary Methods
     methods
         function this = COVIDGridworld(people, map, target_indices, colors)
-            % COVIDGridworld    Creates an instance of the environment.
+            % COVIDGridworld Creates an instance of the environment.
             
             % Generate a cell array that holds all possible actions.
             % Works as a car odometer.
-            %             actions_cell = cell([5 ^ people, 1]);
-            %             prev_cell = ones(people, 1);
-            %             actions_cell{1} = prev_cell;
-            %             for i = 2:(5 ^ people)
-            %                 prev_cell = actions_cell{i - 1};
-            %                 for j = 1:people
-            %                     prev_cell(j) = prev_cell(j) + 1;
-            %                     if prev_cell(j) == 6
-            %                         prev_cell(j) = 1;
-            %                         continue
-            %                     else
-            %                         break
-            %                     end
-            %                 end
-            %                 actions_cell{i} = prev_cell;
-            %             end
-            
-            vectComb = zeros (5^people, people);
-            for i = 1 : height(vectComb)
-                comb = dec2base(i-1,5);
-                for j = 1 : length(comb)
-                    vectComb(i, (people -length(comb)) + j) = str2double(comb(j));
+            actions_cell = cell([5 ^ people - 1, 1]);
+            prev_cell = ones(people, 1);
+            prev_cell(1) = 2;
+            actions_cell{1} = prev_cell;
+            for i = 2:(5 ^ people - 1)
+                prev_cell = actions_cell{i - 1};
+                for j = 1:people
+                    prev_cell(j) = prev_cell(j) + 1;
+                    if prev_cell(j) == 6
+                        prev_cell(j) = 1;
+                        continue
+                    else
+                        break
+                    end
                 end
-            end
-            vectComb = vectComb + 1; % to have action from 1 to 5
-            % Transform the combination table in a cel list
-            actions_cell = {};
-            for act = 1:height(vectComb)
-                actions_cell = [actions_cell;{vectComb(act,:)'}]; % Transpose the input because the network layer is a column
+                actions_cell{i} = prev_cell;
             end
             
-            numCells = size(map, 1) * size(map, 2);
+            num_cells = size(map, 1) * size(map, 2);
             
             % Initialize Observation settings.
-            ObservationInfo = rlNumericSpec([people 1]);
+            ObservationInfo = rlNumericSpec([2*people 1]);
             ObservationInfo.Name = 'COVIDGridworld Observation';
             ObservationInfo.Description = 'People positions';
-            ObservationInfo.LowerLimit = 0;
-            ObservationInfo.UpperLimit = numCells;
+            ObservationInfo.LowerLimit = 1;
+            ObservationInfo.UpperLimit = max(size(map)) + 1;
             
             % Initialize Action settings.
             ActionInfo = rlFiniteSetSpec(actions_cell);
@@ -123,19 +110,19 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             this.map_mat = map;
             this.targets = target_indices;
             this.State = zeros(people, 1);
-            this.defeat_rew = -1000 * numCells;
+            this.defeat_rew = -1000 * num_cells;
             this.Colors = colors;
-            this.stepEpisode = 0;
-            this.numCells = numCells;
+            this.episode_step = 0;
+            this.num_cells = num_cells;
         end
         
         function [Observation, Reward, IsDone, LoggedSignals] = step(this, Action)
-            % STEP  Simulates the environment with the given action.
+            % STEP Simulates the environment with the given action.
             LoggedSignals = [];
             all_still = true;
             defeated = false;
             this.IsDone = false;
-            this.stepEpisode = this.stepEpisode + 1;
+            this.episode_step = this.episode_step + 1;
             % Process each person's movements.
             for i = 1:this.n_people
                 curr_moved = false;
@@ -264,7 +251,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             if defeated == true
                 this.IsDone = true;
                 IsDone = true;
-                Observation = zeros(this.n_people, 1);
+                Observation = ones(2*(this.n_people), 1);
                 Reward = this.defeat_rew;
                 notifyEnvUpdated(this);
                 return
@@ -272,15 +259,24 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             
             % Check for "Victory".
             won = true;
+            not_in_target = 0;
             for i = 1:this.n_people
                 if this.State(i) ~= this.targets(i)
                     won = false;
+                    not_in_target = not_in_target + 1;
                 end
             end
             if won == true
                 this.IsDone = true;
                 IsDone = true;
-                Observation = this.State;
+                Observation = zeros(2*(this.n_people), 1);
+                k = 1;
+                for i = 1:this.n_people
+                    [curr_row, curr_col] = ind2sub([size(this.map_mat, 1) size(this.map_mat, 2)], this.State(i));
+                    Observation(k) = curr_row + 1;
+                    Observation(k + 1) = curr_col + 1;
+                    k = k + 2;
+                end
                 Reward = this.victory_rew;
                 notifyEnvUpdated(this);
                 return
@@ -288,8 +284,15 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             
             % Just a normal execution step.
             IsDone = false;
-            Observation = this.State;
-            Reward = this.single_step_rew;
+            Observation = zeros(2*(this.n_people), 1);
+            k = 1;
+            for i = 1:this.n_people
+                [curr_row, curr_col] = ind2sub([size(this.map_mat, 1) size(this.map_mat, 2)], this.State(i));
+                Observation(k) = curr_row + 1;
+                Observation(k + 1) = curr_col + 1;
+                k = k + 2;
+            end
+            Reward = this.single_step_rew * not_in_target;
             notifyEnvUpdated(this);
         end
         
@@ -299,8 +302,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             % Reset counters and other properties.
             this.stall_acts_cnt = 0;
             this.IsDone = false;
-            this.stepEpisode = 0;
-            
+            this.episode_step = 0;
             
             % Clear the map from people (not the first time!).
             if this.State(1) ~= 0
@@ -311,7 +313,8 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             end
             
             % Generate and set a new initial state.
-            InitialObservation = zeros(this.n_people, 1);
+            InitialObservation = zeros(2*(this.n_people), 1);
+            k = 1;
             for i = 1:this.n_people
                 while true
                     new_pos = randi(size(this.map_mat, 1) * size(this.map_mat, 2));
@@ -328,7 +331,9 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
                     else
                         this.map_mat(new_row, new_col) = 2 + i;
                         this.State(i) = new_pos;
-                        InitialObservation(i) = new_pos;
+                        InitialObservation(k) = new_row + 1;
+                        InitialObservation(k + 1) = new_col + 1;
+                        k = k + 2;
                         break
                     end
                 end
