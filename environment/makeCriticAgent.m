@@ -56,7 +56,7 @@ function sarsa_agent = makeCriticAgent(envCovid)
 
     % ############## Agent Creation ##############
     optSarsa = rlSARSAAgentOptions;
-    optSarsa.EpsilonGreedyExploration.Epsilon = 0.5;
+    optSarsa.EpsilonGreedyExploration.Epsilon = 0.7;
     optSarsa.EpsilonGreedyExploration.EpsilonDecay = 0.001;
     optSarsa.EpsilonGreedyExploration.EpsilonMin = 0.01;
     sarsa_agent = rlSARSAAgent(critic,optSarsa);
