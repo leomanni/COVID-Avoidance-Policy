@@ -1,4 +1,4 @@
-% Script to generate a 4-people environment, and validate it.
+% Script to generate a 4-people environment and train a SARSA agent in it.
 % -------------------------------------------------------------------------
 % Roberto Masocco, Edoardo Rossi, Leonardo Manni, Filippo Badalamenti,
 % Emanuele Alfano
