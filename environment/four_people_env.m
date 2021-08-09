@@ -15,13 +15,13 @@ covid_four_env = COVIDGridworld(4, map, targets, {'r', 'g', 'b', 'y'});
 validateEnvironment(covid_four_env);
 covid_four_env.reset();
 
-%% Train the agent
+%% Create the training algorithm.
 sarsa_agent = makeCriticAgent(covid_four_env);
 trainOpts = rlTrainingOptions(...
     'MaxEpisodes',1e5,...
     'MaxStepsPerEpisode',1000,...
     'StopTrainingCriteria',"AverageReward",...
-    'StopTrainingValue',480, ...
+    'StopTrainingValue',0, ...
     'Verbose',true,...
     'Plots',"training-progress");
 
@@ -31,7 +31,8 @@ trainOpts.ParallelizationOptions.DataToSendFromWorkers = "gradients"; %for A3C
 trainOpts.ParallelizationOptions.StepsUntilDataIsSent = 20;
 trainOpts.ParallelizationOptions.WorkerRandomSeeds = -1;
 trainOpts.StopOnError = 'off';
-%%
+
+%% Train the agent in the environment.
 % plot(covid_four_env);
 trainStats = train(sarsa_agent,covid_four_env,trainOpts);
 save("sarsaTrain.mat",'trainStats','covid_four_env','trainOpts');
