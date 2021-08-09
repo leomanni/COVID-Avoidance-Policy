@@ -25,9 +25,6 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
         % Stall leading actions counter max value.
         max_stall_acts = 10
         
-        % "Defeat" state reward (depends on map size).
-        defeat_rew = 0
-        
         % Single step reward coefficient.
         single_step_rew = -1
         
@@ -110,7 +107,6 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             this.map_mat = map;
             this.targets = target_indices;
             this.State = zeros(people, 1);
-            this.defeat_rew = -1000 * num_cells;
             this.Colors = colors;
             this.episode_step = 0;
             this.num_cells = num_cells;
@@ -247,13 +243,11 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
                 this.stall_acts_cnt = 0;
             end
             
-            % "Defeat" state: set return values and get out.
+            % "Defeat" state: leads to a full environment reset.
             if defeated == true
-                this.IsDone = true;
-                IsDone = true;
-                Observation = ones(2*(this.n_people), 1);
-                Reward = this.defeat_rew;
-                notifyEnvUpdated(this);
+                Observation = this.reset();
+                Reward = this.single_step_rew * this.n_people;
+                IsDone = false;
                 return
             end
             
