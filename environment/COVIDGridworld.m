@@ -28,7 +28,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
         % "Defeat" state reward (depends on map size).
         defeat_rew = 0
         
-        % Single step reward.
+        % Single step reward coefficient.
         single_step_rew = -1
         
         % "Victory" state reward.
@@ -272,9 +272,11 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             
             % Check for "Victory".
             won = true;
+            not_in_target = 0;
             for i = 1:this.n_people
                 if this.State(i) ~= this.targets(i)
                     won = false;
+                    not_in_target = not_in_target + 1;
                 end
             end
             if won == true
@@ -303,7 +305,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
                 Observation(k + 1) = curr_col + 1;
                 k = k + 2;
             end
-            Reward = this.single_step_rew;
+            Reward = this.single_step_rew * not_in_target;
             notifyEnvUpdated(this);
         end
         
