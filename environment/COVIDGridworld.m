@@ -23,7 +23,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
         stall_acts_cnt = 0
         
         % Stall leading actions counter max value.
-        max_stall_acts = 3
+        max_stall_acts = 10
         
         % "Defeat" state reward (depends on map size).
         defeat_rew = 0
