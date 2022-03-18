@@ -202,8 +202,8 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
                             % Obstacle detected: did someone got here in
                             % the meantime?
                             if this.map_mat(curr_row, curr_col) ~= 2 + i
-                                defeated = true;
-                                break
+%                                 defeated = true;
+%                                 break
                             end
                             % If control got here, there's nothing to do.
                         otherwise
@@ -211,40 +211,40 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
                             other_guy = this.map_mat(new_subs(1), new_subs(2)) - 2;
                             if other_guy < i
                                 % He got here first: illegal collision.
-                                defeated = true;
-                                break
+%                                 defeated = true;
+%                                 break
                             else
                                 % What's he going to do?
                                 if Action(other_guy) == 1
                                     % He's here to stay: illegal collision.
-                                    defeated = true;
-                                    break
+%                                     defeated = true;
+%                                     break
                                 else
                                     % Watch out for illegal crossings.
                                     switch Action(i)
                                         case 2
                                             % NORTH: Is he going SOUTH?
                                             if Action(other_guy) == 3
-                                                defeated = true;
-                                                break
+%                                                 defeated = true;
+%                                                 break
                                             end
                                         case 3
                                             % SOUTH: Is he going NORTH?
                                             if Action(other_guy) == 2
-                                                defeated = true;
-                                                break
+%                                                 defeated = true;
+%                                                 break
                                             end
                                         case 4
                                             % WEST: Is he going EAST?
                                             if Action(other_guy) == 5
-                                                defeated = true;
-                                                break
+%                                                 defeated = true;
+%                                                 break
                                             end
                                         case 5
                                             % EAST: Is he going WEST?
                                             if Action(other_guy) == 4
-                                                defeated = true;
-                                                break
+%                                                 defeated = true;
+%                                                 break
                                             end
                                     end
                                     % If control got here means the
@@ -415,7 +415,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
                 [r, c] = ind2sub([size(this.map_mat, 1) size(this.map_mat, 2)], this.targets(i));
                 X = [c - 0.5, c + 0.5, c + 0.5, c - 0.5, c - 0.5];
                 Y = -[r - 0.5, r - 0.5, r + 0.5, r + 0.5, r - 0.5];
-                patch(this.Ax, X, Y, this.Colors(i));
+                patch(this.Ax, X, Y, this.Colors{i});
             end
             
             % Update the visualization.
@@ -435,7 +435,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
                     [curr_row, curr_col] = ind2sub([size(this.map_mat, 1) size(this.map_mat, 2)], this.State(i));
                     XData = curr_col + real(Data);
                     YData = -curr_row + imag(Data);
-                    this.PeoplePatches(i) = patch(this.Ax, XData, YData, this.Colors(i));
+                    this.PeoplePatches(i) = patch(this.Ax, XData, YData, this.Colors{i});
                 end
                 
                 % Refresh rendering in the figure window.
