@@ -6,7 +6,7 @@
 
 classdef COVIDGridworld < rl.env.MATLABEnvironment
     %COVIDGRIDWORLD: Multiple people RL gridworld.
-
+    
     %% Gridworld Properties
     properties
         % Environment constants and physical characteristics.
@@ -33,48 +33,48 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
         
         % "Victory" state base reward.
         victory_rew = 0
-
+        
         % COVID-19 infected people flags.
         infected_people
-
+        
         % Starting number of COVID-19 infected.
         infected_init
-
+        
         % COVID-19 contagion probability.
         contagion_prob
-
+        
         % COVID-19 infected delta reward multiplier.
         infected_delta_gain = -100
-
+        
         % COVID-19 contagion risk zone radius.
         contagion_zone_radius = 1
         
         % People positions (depends on n_people).
         State
-
+        
         % Internal flag to indicate episode termination.
         IsDone = false
-
+        
         % Plot figure handle.
         Figure
-
+        
         % Plot figure axes.
         Ax
-
+        
         % Plot grid lines.
         GridLines
-
+        
         % Handles for people plot patches.
         PeoplePatches
-
+        
         % Array of strings that specify colors to plot different people.
         Colors
     end
-
+    
     %% Necessary Methods
     methods
         function this = COVIDGridworld(people, map, target_indices, colors, covid_prob)
-        % COVIDGridworld    Creates an instance of the environment.
+            % COVIDGridworld    Creates an instance of the environment.
             
             % Generate a cell array that holds all possible actions.
             % Works as a car odometer.
@@ -120,9 +120,9 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             this.Colors = colors;
             this.contagion_prob = covid_prob;
         end
-
+        
         function [Observation, Reward, IsDone, LoggedSignals] = step(this, Action)
-        % STEP  Simulates the environment with the given action.
+            % STEP  Simulates the environment with the given action.
             LoggedSignals = [];
             all_still = true;
             defeated = false;
@@ -202,8 +202,8 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
                             % Obstacle detected: did someone got here in
                             % the meantime?
                             if this.map_mat(curr_row, curr_col) ~= 2 + i
-%                                 defeated = true;
-%                                 break
+                                %                                 defeated = true;
+                                %                                 break
                             end
                             % If control got here, there's nothing to do.
                         otherwise
@@ -211,40 +211,38 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
                             other_guy = this.map_mat(new_subs(1), new_subs(2)) - 2;
                             if other_guy < i
                                 % He got here first: illegal collision.
-%                                 defeated = true;
-%                                 break
+                                %                                 defeated = true;
+                                %                                 break
                             else
                                 % What's he going to do?
                                 if Action(other_guy) == 1
                                     % He's here to stay: illegal collision.
-%                                     defeated = true;
-%                                     break
                                 else
                                     % Watch out for illegal crossings.
                                     switch Action(i)
                                         case 2
                                             % NORTH: Is he going SOUTH?
                                             if Action(other_guy) == 3
-%                                                 defeated = true;
-%                                                 break
+                                                new_subs = [curr_row, curr_col];
+                                                new_pos = curr_pos;                                           
                                             end
                                         case 3
                                             % SOUTH: Is he going NORTH?
                                             if Action(other_guy) == 2
-%                                                 defeated = true;
-%                                                 break
+                                                new_subs = [curr_row, curr_col];
+                                                new_pos = curr_pos;                
                                             end
                                         case 4
                                             % WEST: Is he going EAST?
                                             if Action(other_guy) == 5
-%                                                 defeated = true;
-%                                                 break
+                                                new_subs = [curr_row, curr_col];
+                                                new_pos = curr_pos;
                                             end
                                         case 5
                                             % EAST: Is he going WEST?
                                             if Action(other_guy) == 4
-%                                                 defeated = true;
-%                                                 break
+                                                new_subs = [curr_row, curr_col];
+                                                new_pos = curr_pos;
                                             end
                                     end
                                     % If control got here means the
@@ -311,9 +309,9 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             Reward = this.single_step_rew;
             notifyEnvUpdated(this);
         end
-
+        
         function InitialObservation = reset(this)
-        % RESET Resets environment and observation to initial state.
+            % RESET Resets environment and observation to initial state.
             
             % Reset counters and other properties.
             this.stall_acts_cnt = 0;
@@ -363,7 +361,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             notifyEnvUpdated(this);
         end
     end
-
+    
     %% Auxiliary Methods
     methods
         function plot(this)
@@ -422,10 +420,10 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
             envUpdatedCallback(this);
         end
     end
-
+    
     methods (Access = protected)
         function envUpdatedCallback(this)
-        % ENVUPDATEDCALLBACK    Updates the environment visualization.
+            % ENVUPDATEDCALLBACK    Updates the environment visualization.
             if ~isempty(this.Figure) && isvalid(this.Figure)
                 Data = 0.3 * exp(1j * (0:.2:2*pi+.2));
                 for i = 1:this.n_people
