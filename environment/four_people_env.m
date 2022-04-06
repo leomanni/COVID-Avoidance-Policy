@@ -8,6 +8,8 @@ clearvars
 close all
 clc
 
+rng(42);
+
 [map, targets] = four_people_map();
 covid_four_env = COVIDGridworld(4, map, targets, {'r', 'g', 'b', 'y'});
 
