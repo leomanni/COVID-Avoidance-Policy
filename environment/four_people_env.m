@@ -11,7 +11,7 @@ clc
 rng(42);
 
 [map, targets] = four_people_map();
-covid_four_env = COVIDGridworld(4, map, targets, {'r', 'g', 'b', 'y'});
+covid_four_env = COVIDGridworld(4, map, targets, {'r', 'g', 'b', 'y'}, 0.2);
 
 %% Validate and reset the new environment.
 validateEnvironment(covid_four_env);
@@ -36,6 +36,7 @@ trainOpts.StopOnError = 'off';
 
 %% Train the agent in the environment.
 % plot(covid_four_env);
+maxNumCompThreads(6); % Limit CPU cores usage
 trainStats = train(sarsa_agent,covid_four_env,trainOpts);
 save("sarsaTrain.mat",'trainStats','covid_four_env','trainOpts');
 % close
