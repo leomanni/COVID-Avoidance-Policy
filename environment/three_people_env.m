@@ -40,7 +40,7 @@ trainOpts.StopOnError = 'off';
 %% Train the agent in the environment.
 % plot(covid_four_env);
 maxNumCompThreads(6); % Limit CPU cores usage
-trainStats = train(sarsa_agent,covid_four_env,trainOpts);
+trainStats = train(sarsa_agent,covid_three_env,trainOpts);
 save("sarsaTrain.mat",'trainStats','covid_four_env','trainOpts');
 % close
 % for i = 1:1000
