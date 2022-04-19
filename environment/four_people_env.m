@@ -14,6 +14,9 @@ rng(42);
 covid_four_env = COVIDGridworld(4, map, targets, {'r', 'g', 'b', 'y'}, 0.2);
 
 %% Validate and reset the new environment.
+
+covid_four_env.num_cells = size(map, 1) * size(map, 2);
+
 validateEnvironment(covid_four_env);
 covid_four_env.reset();
 

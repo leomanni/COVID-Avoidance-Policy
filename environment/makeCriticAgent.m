@@ -25,18 +25,23 @@ function sarsa_agent = makeCriticAgent(envCovid)
     % Add Layer Branches
     % Add the branches of the network to the layer graph. Each branch is a linear array of layers.
     % imageInputLayer([Alteza, Larghezza, NumCanali],...), dove NumCanali è sempre e comunque double
-    tempLayers = imageInputLayer([obsInfo.Dimension(1) obsInfo.Dimension(2) 1],"Name","StateInput","Normalization","none");
-    lgraph = addLayers(lgraph,tempLayers);
+    tempLayers = imageInputLayer([obsInfo.Dimension(1) obsInfo.Dimension(2) 1], ... 
+        "Name","StateInput","Normalization","none")
+    lgraph = addLayers(lgraph,tempLayers)
 
-    tempLayers = imageInputLayer([actInfo.Dimension(1) actInfo.Dimension(2) 1],"Name","ActionInput","Normalization","none");
+    tempLayers = imageInputLayer([actInfo.Dimension(1) actInfo.Dimension(2) 1], ... 
+        "Name","ActionInput","Normalization","none");
     lgraph = addLayers(lgraph,tempLayers);
 
     % Utility list, to define the layer, the 2 input layer arent present,
     % because have to be connected to the concat layer
+    
+    
+    
     tempLayers = [
         concatenationLayer(1,2,"Name","concat") % Connetto 2 layer nella dimensione 1
         fullyConnectedLayer(cells_num * 8,"Name","fc_1")
-        sigmoidLayer("Name","sigmoid_1")
+        sigmoidLayer('Name','sigmoid_1')
         fullyConnectedLayer(cells_num * 2,"Name","fc_2")
         sigmoidLayer("Name","sigmoid_2")
         fullyConnectedLayer(1,"Name","fc_3")];
