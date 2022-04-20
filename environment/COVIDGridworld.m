@@ -418,7 +418,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
                 yLineData = [yLineData; y0; m + 0.5; nan];
             end
             this.GridLines = plot(this.Ax, xLineData, -yLineData);
-            title("Step: " + this.stepEpisode);
+            title("Step: " + this.episode_step);
             text(5,5,'TEST TEXT')
 
             % Draw obstacles.
