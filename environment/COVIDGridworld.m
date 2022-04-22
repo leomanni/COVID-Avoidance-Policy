@@ -360,6 +360,15 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
                     if this.map_mat(new_row, new_col) ~= 1
                         % A new random extraction is necessary.
                         continue
+<<<<<<< Updated upstream
+=======
+                         
+                    %Check if the position is in a set.
+                    elseif (abs(new_row-row_tar)>2 || abs(new_col-col_tar)>2) 
+                        % A new random extraction is necessary.
+                        continue
+                       
+>>>>>>> Stashed changes
                     else
                         this.map_mat(new_row, new_col) = 2 + i;
                         this.State(i) = new_pos;
