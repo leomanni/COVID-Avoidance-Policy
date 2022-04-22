@@ -364,7 +364,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
                         
                     %Check if the position is in a set.
                     elseif (abs(new_row-row_tar)>2 || abs(new_col-col_tar)>2)
-                        % A new random extraction is necessary.
+                        % A new random extraction is necessary. 
                         continue
                        
                     else
