@@ -431,7 +431,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
                     end
                 end
             end
-            
+             
             % Draw targets.
             for i = 1:length(this.targets)
                 [r, c] = ind2sub([size(this.map_mat, 1) size(this.map_mat, 2)], this.targets(i));
