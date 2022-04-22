@@ -351,6 +351,7 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
                 while true
                     new_pos = randi(size(this.map_mat, 1) * size(this.map_mat, 2));
                     % Check if this is not a target.
+                    [row_tar, col_tar] = ind2sub([size(this.map_mat,1) size(this.map_mat,1)], this.targets(i));
                     if ismember(new_pos, this.targets) == true
                         % A new random extraction is necessary.
                         continue
@@ -360,6 +361,12 @@ classdef COVIDGridworld < rl.env.MATLABEnvironment
                     if this.map_mat(new_row, new_col) ~= 1
                         % A new random extraction is necessary.
                         continue
+                        
+                    %Check if the position is in a set
+                    elseif (abs(new_row-row_tar)>2 || abs(new_col-col_tar)>2)
+                        % A new random extraction is necessary.
+                        continue
+                       
                     else
                         this.map_mat(new_row, new_col) = 2 + i;
                         this.State(i) = new_pos;
